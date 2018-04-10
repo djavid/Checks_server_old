@@ -9,6 +9,7 @@ import javax.persistence.Id
 class Item(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
+        val id: Long,
         val quantity: Long,
         val price: Long,
         val sum: Long,
