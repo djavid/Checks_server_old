@@ -1,9 +1,6 @@
 package com.djavid.check_server.model.entity
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 class Receipt(
@@ -15,6 +12,7 @@ class Receipt(
         val fiscalDocumentNumber: Long,
         val ecashTotalSum: Long,
         val taxationType: Long,
+        @OneToMany(targetEntity = Item::class, fetch = FetchType.EAGER)
         val items: List<Item>,
         val shiftNumber: Long,
         val user: String,
