@@ -1,6 +1,29 @@
 package com.djavid.check_server.controller
 
+import com.djavid.check_server.ChecksApplication
+import com.djavid.check_server.model.entity.Receipt
+import com.djavid.check_server.model.repository.ReceiptRepository
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 
-class ReceiptController {
+@RestController
+@RequestMapping(value = ["receipt"])
+class ReceiptController constructor(
+        private val receiptRepository: ReceiptRepository
+) {
+
+    @RequestMapping(method = [RequestMethod.GET], produces = ["application/json"])
+    fun getReceipts(): Iterable<Receipt> = receiptRepository.findAll()
+
+    @RequestMapping(method = [RequestMethod.POST], produces = ["application/json"])
+    fun postReceipt(@RequestBody receipt: Receipt) : Receipt {
+
+        val res = receiptRepository.save(receipt)
+        ChecksApplication.log.info("Saved " + receipt.toString())
+
+        return res
+    }
 
 }
