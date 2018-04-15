@@ -15,6 +15,7 @@ public class Receipt {
     private Long ecashTotalSum;
     private Long taxationType;
     //@OneToMany(targetEntity = Item.class, fetch = FetchType.EAGER) //TODO hz cho tut
+    @OneToMany
     private List<Item> items;
     private Long shiftNumber;
     private String user;
