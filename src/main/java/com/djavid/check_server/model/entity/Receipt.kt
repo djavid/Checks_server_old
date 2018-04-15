@@ -12,7 +12,7 @@ class Receipt(
         val fiscalDocumentNumber: Long,
         val ecashTotalSum: Long,
         val taxationType: Long,
-        @OneToMany(targetEntity = Item::class, fetch = FetchType.EAGER)
+        @OneToMany(targetEntity = Item::class, fetch = FetchType.EAGER) //TODO hz cho tut
         val items: List<Item>,
         val shiftNumber: Long,
         val user: String,
