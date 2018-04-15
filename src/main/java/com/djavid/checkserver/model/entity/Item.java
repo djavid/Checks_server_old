@@ -1,6 +1,9 @@
 package com.djavid.checkserver.model.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class Item {
@@ -15,9 +18,9 @@ public class Item {
     private Long nds18;
     private Long nds10;
 
-    @ManyToOne
-    @JoinColumn(name="receiptId")
-    private Receipt receipt;
+//    @ManyToOne
+//    @JoinColumn(name="id")
+//    private Receipt receipt;
 
 
     public Item() { }
@@ -79,11 +82,11 @@ public class Item {
         this.nds10 = nds10;
     }
 
-    public Receipt getReceipt() {
-        return receipt;
-    }
-
-    public void setReceipt(Receipt receipt) {
-        this.receipt = receipt;
-    }
+//    public Receipt getReceipt() {
+//        return receipt;
+//    }
+//
+//    public void setReceipt(Receipt receipt) {
+//        this.receipt = receipt;
+//    }
 }
