@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReceiptRepository extends CrudRepository<Receipt, Long> {
 
-    Receipt findReceiptById(Long id);
+    Receipt findReceiptByReceiptId(Long id);
     Receipt findReceiptByUser(String user);
 
 }
