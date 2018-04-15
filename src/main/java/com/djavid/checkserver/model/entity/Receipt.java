@@ -17,7 +17,7 @@ public class Receipt {
     @OneToMany(targetEntity = Item.class, mappedBy = "receipt", fetch = FetchType.EAGER) //TODO hz cho tut
     private List<Item> items;
     private Long shiftNumber;
-    private String user;
+    private String shop;
     private Long receiptCode;
     private Long cashTotalSum;
     private String userInn;
@@ -91,12 +91,12 @@ public class Receipt {
         this.shiftNumber = shiftNumber;
     }
 
-    public String getUser() {
-        return user;
+    public String getShop() {
+        return shop;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setShop(String shop) {
+        this.shop = shop;
     }
 
     public Long getReceiptCode() {
