@@ -3,7 +3,7 @@ package com.djavid.checkserver.model.entity
 import javax.persistence.*
 
 @Entity
-class Receipt(
+public class Receipt(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Long,

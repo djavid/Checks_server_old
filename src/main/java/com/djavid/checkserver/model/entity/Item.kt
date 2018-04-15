@@ -6,7 +6,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class Item(
+public class Item(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Long,
