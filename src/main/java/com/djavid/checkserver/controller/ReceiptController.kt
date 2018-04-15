@@ -1,7 +1,6 @@
 package com.djavid.checkserver.controller
 
 import com.djavid.checkserver.ChecksApplication
-import com.djavid.checkserver.model.entity.Receipt
 import com.djavid.checkserver.model.repository.ReceiptRepository
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
