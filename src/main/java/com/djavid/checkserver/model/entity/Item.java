@@ -1,9 +1,6 @@
 package com.djavid.checkserver.model.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Item {
@@ -17,6 +14,10 @@ public class Item {
     private String name;
     private Long nds18;
     private Long nds10;
+
+    @ManyToOne
+    @JoinColumn(name="id")
+    private Receipt receipt;
 
 
     public Item() { }
