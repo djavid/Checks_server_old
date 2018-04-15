@@ -1,4 +1,4 @@
-package com.djavid.check_server.model.entity
+package com.djavid.checkserver.model.entity
 
 import javax.persistence.*
 

@@ -1,6 +1,6 @@
-package com.djavid.check_server.model.repository;
+package com.djavid.checkserver.model.repository;
 
-import com.djavid.check_server.model.entity.Item;
+import com.djavid.checkserver.model.entity.Item;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.djavid.check_server.checks;
+package com.djavid.checkserver.checks;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,7 +1,7 @@
-package com.djavid.check_server.controller
+package com.djavid.checkserver.controller
 
-import com.djavid.check_server.model.entity.Item
-import com.djavid.check_server.model.repository.ItemRepository
+import com.djavid.checkserver.model.entity.Item
+import com.djavid.checkserver.model.repository.ItemRepository
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController

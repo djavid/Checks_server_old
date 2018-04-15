@@ -1,4 +1,4 @@
-package com.djavid.check_server
+package com.djavid.checkserver
 
 class Config {
 
