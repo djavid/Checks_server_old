@@ -7,7 +7,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long itemId;
+    private Long id;
     private Long quantity;
     private Long price;
     private Long sum;
@@ -23,12 +23,12 @@ public class Item {
     public Item() { }
 
 
-    public Long getItemId() {
-        return itemId;
+    public Long getId() {
+        return id;
     }
 
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getQuantity() {

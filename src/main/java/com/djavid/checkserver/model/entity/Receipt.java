@@ -8,7 +8,7 @@ public class Receipt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long receiptId;
+    private Long id;
     //val buyerId: Long,
     private Long fiscalSign;
     private Long fiscalDocumentNumber;
@@ -35,12 +35,12 @@ public class Receipt {
     public Receipt() { }
 
 
-    public Long getReceiptId() {
-        return receiptId;
+    public Long getId() {
+        return id;
     }
 
-    public void setReceiptId(Long receiptId) {
-        this.receiptId = receiptId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getFiscalSign() {
