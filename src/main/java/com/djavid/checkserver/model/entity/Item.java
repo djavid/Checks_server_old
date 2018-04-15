@@ -7,7 +7,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long itemId;
     private Long quantity;
     private Long price;
     private Long sum;
@@ -16,19 +16,19 @@ public class Item {
     private Long nds10;
 
     @ManyToOne
-    @JoinColumn(name="id")
+    @JoinColumn(name="receiptId")
     private Receipt receipt;
 
 
     public Item() { }
 
 
-    public Long getId() {
-        return id;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
     }
 
     public Long getQuantity() {
@@ -77,5 +77,13 @@ public class Item {
 
     public void setNds10(Long nds10) {
         this.nds10 = nds10;
+    }
+
+    public Receipt getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(Receipt receipt) {
+        this.receipt = receipt;
     }
 }
