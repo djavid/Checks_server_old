@@ -16,7 +16,7 @@ public class Item {
     private Long nds10;
 
     @ManyToOne
-    @JoinColumn(name="id")
+    @JoinColumn(name="receipt_id")
     private Receipt receipt;
 
 
