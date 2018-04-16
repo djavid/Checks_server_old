@@ -42,7 +42,6 @@ public class Item {
                 ", name='" + name + '\'' +
                 ", nds18=" + nds18 +
                 ", nds10=" + nds10 +
-                ", receipt=" + receipt +
                 '}';
     }
 
