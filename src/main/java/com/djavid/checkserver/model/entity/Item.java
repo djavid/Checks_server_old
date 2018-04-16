@@ -16,12 +16,25 @@ public class Item {
     private Long nds10;
 
     @ManyToOne
-    @JoinColumn(name="receipt_id")
+    @JoinColumn(name="id")
     private Receipt receipt;
 
 
     public Item() { }
 
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                ", sum=" + sum +
+                ", name='" + name + '\'' +
+                ", nds18=" + nds18 +
+                ", nds10=" + nds10 +
+                ", receipt=" + receipt +
+                '}';
+    }
 
     public Long getId() {
         return id;

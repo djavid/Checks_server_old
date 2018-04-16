@@ -14,7 +14,7 @@ public class Receipt {
     private Long fiscalDocumentNumber;
     private Long ecashTotalSum;
     private Long taxationType;
-    @OneToMany(targetEntity = Item.class, mappedBy = "receipt", fetch = FetchType.EAGER) //TODO hz cho tut
+    @OneToMany(targetEntity = Item.class, mappedBy = "receipt", fetch = FetchType.EAGER)
     private List<Item> items;
     private Long shiftNumber;
     private String shop;
@@ -34,6 +34,31 @@ public class Receipt {
 
     public Receipt() { }
 
+    @Override
+    public String toString() {
+        return "Receipt{" +
+                "id=" + id +
+                ", fiscalSign=" + fiscalSign +
+                ", fiscalDocumentNumber=" + fiscalDocumentNumber +
+                ", ecashTotalSum=" + ecashTotalSum +
+                ", taxationType=" + taxationType +
+                ", items=" + items +
+                ", shiftNumber=" + shiftNumber +
+                ", shop='" + shop + '\'' +
+                ", receiptCode=" + receiptCode +
+                ", cashTotalSum=" + cashTotalSum +
+                ", userInn='" + userInn + '\'' +
+                ", nds10=" + nds10 +
+                ", requestNumber=" + requestNumber +
+                ", nds18=" + nds18 +
+                ", operationType=" + operationType +
+                ", fiscalDriveNumber='" + fiscalDriveNumber + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                ", totalSum=" + totalSum +
+                ", kktRegId='" + kktRegId + '\'' +
+                ", operator='" + operator + '\'' +
+                '}';
+    }
 
     public Long getId() {
         return id;
