@@ -8,7 +8,7 @@ import javax.persistence.*;
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long itemId;
     private double quantity;
     private Long price;
