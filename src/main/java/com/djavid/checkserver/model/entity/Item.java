@@ -10,7 +10,7 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long itemId;
-    private Long quantity;
+    private double quantity;
     private Long price;
     private Long sum;
     private String name;
@@ -56,11 +56,11 @@ public class Item {
         this.itemId = itemId;
     }
 
-    public Long getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
