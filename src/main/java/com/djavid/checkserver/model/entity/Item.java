@@ -19,6 +19,16 @@ public class Item {
     @JoinColumn(name="receipt_id")
     private Receipt receipt;
 
+    public Item(Long quantity, Long price, Long sum, String name, Long nds18, Long nds10, Receipt receipt) {
+        this.quantity = quantity;
+        this.price = price;
+        this.sum = sum;
+        this.name = name;
+        this.nds18 = nds18;
+        this.nds10 = nds10;
+        this.receipt = receipt;
+        receipt.addItem(this);
+    }
 
     public Item() { }
 
