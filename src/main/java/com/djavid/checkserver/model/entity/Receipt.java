@@ -1,6 +1,7 @@
 package com.djavid.checkserver.model.entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,8 +15,8 @@ public class Receipt {
     private Long fiscalDocumentNumber;
     private Long ecashTotalSum;
     private Long taxationType;
-    @OneToMany(targetEntity = Item.class, mappedBy = "receipt", fetch = FetchType.EAGER)
-    private List<Item> items;
+    @OneToMany(targetEntity = Item.class, mappedBy = "receipt_id", fetch = FetchType.EAGER)
+    private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
     private String shop;
     private Long receiptCode;
