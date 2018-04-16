@@ -15,7 +15,7 @@ public class Receipt {
     private Long fiscalDocumentNumber;
     private Long ecashTotalSum;
     private Long taxationType;
-    @OneToMany(mappedBy = "receipt")
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL)
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
     private String shop;
