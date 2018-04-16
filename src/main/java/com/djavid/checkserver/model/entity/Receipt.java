@@ -109,6 +109,10 @@ public class Receipt {
         this.items = items;
     }
 
+    public void addItem(Item item) {
+        this.items.add(item);
+    }
+
     public Long getShiftNumber() {
         return shiftNumber;
     }
