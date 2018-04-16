@@ -8,7 +8,7 @@ import java.util.List;
 public class Receipt {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long receiptId;
     //val buyerId: Long,
     private Long fiscalSign;
