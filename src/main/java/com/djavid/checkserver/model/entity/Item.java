@@ -1,5 +1,7 @@
 package com.djavid.checkserver.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -15,6 +17,7 @@ public class Item {
     private Long nds18;
     private Long nds10;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="receipt_id")
     private Receipt receipt;
