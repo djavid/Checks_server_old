@@ -15,7 +15,7 @@ public class Receipt {
     private Long fiscalDocumentNumber;
     private Long ecashTotalSum;
     private Long taxationType;
-    @OneToMany(targetEntity = Item.class, mappedBy = "receipt", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "receipt")
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
     private String shop;
