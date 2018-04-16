@@ -7,7 +7,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long item_id;
+    private Long itemId;
     private Long quantity;
     private Long price;
     private Long sum;
@@ -16,7 +16,7 @@ public class Item {
     private Long nds10;
 
     @ManyToOne
-    @JoinColumn(name="receipt_id")
+    @JoinColumn(name="receiptId")
     private Receipt receipt;
 
 
@@ -25,7 +25,7 @@ public class Item {
     @Override
     public String toString() {
         return "Item{" +
-                "item_id=" + item_id +
+                "item_id=" + itemId +
                 ", quantity=" + quantity +
                 ", price=" + price +
                 ", sum=" + sum +
@@ -36,12 +36,12 @@ public class Item {
                 '}';
     }
 
-    public Long getItem_id() {
-        return item_id;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setItem_id(Long item_id) {
-        this.item_id = item_id;
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
     }
 
     public Long getQuantity() {
