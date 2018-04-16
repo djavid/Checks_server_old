@@ -6,7 +6,7 @@ public class ResponseItem {
 
     private Long itemId;
     private Long receiptId;
-    private Long quantity;
+    private double quantity;
     private Long price;
     private Long sum;
     private String name;
