@@ -42,7 +42,7 @@ public class ReceiptController {
         }
 
         Receipt res = receiptRepository.save(receipt);
-        ChecksApplication.log.info("Saved " + receipt.toString());
+        ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
 
         return res;
     }
