@@ -18,7 +18,7 @@ public class Receipt {
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL)
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
-    @Column(name = "user")
+    @Column(name="`user`")
     private String shop;
     private Long receiptCode;
     private Long cashTotalSum;
