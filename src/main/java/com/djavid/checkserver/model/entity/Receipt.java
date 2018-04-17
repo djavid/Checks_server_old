@@ -19,7 +19,7 @@ public class Receipt {
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
     @Column(name="`user`")
-    private String shop;
+    private String user;
     private Long receiptCode;
     private Long cashTotalSum;
     private String userInn;
@@ -49,7 +49,7 @@ public class Receipt {
                 ", taxationType=" + taxationType +
                 ", items=" + items +
                 ", shiftNumber=" + shiftNumber +
-                ", shop='" + shop + '\'' +
+                ", user='" + user + '\'' +
                 ", receiptCode=" + receiptCode +
                 ", cashTotalSum=" + cashTotalSum +
                 ", userInn='" + userInn + '\'' +
@@ -125,12 +125,12 @@ public class Receipt {
         this.shiftNumber = shiftNumber;
     }
 
-    public String getShop() {
-        return shop;
+    public String getUser() {
+        return user;
     }
 
-    public void setShop(String shop) {
-        this.shop = shop;
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public Long getReceiptCode() {
