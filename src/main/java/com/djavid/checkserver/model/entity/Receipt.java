@@ -18,6 +18,7 @@ public class Receipt {
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL)
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
+    @Column(name = "user")
     private String shop;
     private Long receiptCode;
     private Long cashTotalSum;
@@ -32,6 +33,9 @@ public class Receipt {
     private String kktRegId;
     private String operator;
 
+    private String retailPlaceAddress; //адрес
+    //modifiers[] (items too)
+    //stornoItems[]
 
     public Receipt() { }
 
@@ -223,5 +227,13 @@ public class Receipt {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public String getRetailPlaceAddress() {
+        return retailPlaceAddress;
+    }
+
+    public void setRetailPlaceAddress(String retailPlaceAddress) {
+        this.retailPlaceAddress = retailPlaceAddress;
     }
 }
