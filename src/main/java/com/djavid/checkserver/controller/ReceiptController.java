@@ -23,8 +23,6 @@ public class ReceiptController {
         this.itemRepository = itemRepository;
     }
 
-
-
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public List<Receipt> getReceipts(@RequestParam("page") long page) {
 
@@ -38,8 +36,8 @@ public class ReceiptController {
         return res;
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public Receipt getReceiptById(@RequestParam("id") long id) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
+    public Receipt getReceiptById(@PathVariable("id") long id) {
         return receiptRepository.findReceiptByReceiptId(id);
     }
 
