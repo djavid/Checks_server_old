@@ -5,11 +5,9 @@ import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,8 +26,21 @@ public class ReceiptController {
 
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public Iterable<Receipt> getReceipts() {
-        return receiptRepository.findAll();
+    public List<Receipt> getReceipts(@RequestParam("page") long page) {
+
+        List<Receipt> res = new ArrayList<>();
+        int i = 0;
+        for (Receipt item : receiptRepository.findAll()) {
+            res.add(item);
+            if (++i >= page) break;
+        }
+
+        return res;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public Receipt getReceiptById(@RequestParam("id") long id) {
+        return receiptRepository.findReceiptByReceiptId(id);
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
