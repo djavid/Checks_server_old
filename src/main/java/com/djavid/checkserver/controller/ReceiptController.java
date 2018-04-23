@@ -31,8 +31,13 @@ public class ReceiptController {
             list.add(item);
         }
 
+//        for (int j = list.size() - 1; j > list.size() - page; j--) {
+//            res.add(list.get(j));
+//        }
+
         List<Receipt> res = new ArrayList<>();
-        for (int j = list.size() - 1; j > list.size() - page; j++) {
+        int start = list.size() - 1 - (page - 1) * 10;
+        for (int j = start; j > start - 10; j--) {
             res.add(list.get(j));
         }
 
