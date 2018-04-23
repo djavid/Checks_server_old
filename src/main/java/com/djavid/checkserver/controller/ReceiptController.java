@@ -32,7 +32,7 @@ public class ReceiptController {
         }
 
         List<Receipt> res = new ArrayList<>();
-        for (int j = list.size() - page; j < list.size(); j++) {
+        for (int j = list.size() - 1; j > list.size() - page; j++) {
             res.add(list.get(j));
         }
 
