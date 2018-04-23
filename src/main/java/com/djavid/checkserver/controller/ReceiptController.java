@@ -24,13 +24,16 @@ public class ReceiptController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public List<Receipt> getReceipts(@RequestParam("page") long page) {
+    public List<Receipt> getReceipts(@RequestParam("page") int page) {
+
+        List<Receipt> list = new ArrayList<>();
+        for (Receipt item : receiptRepository.findAll()) {
+            list.add(item);
+        }
 
         List<Receipt> res = new ArrayList<>();
-        int i = 0;
-        for (Receipt item : receiptRepository.findAll()) {
-            res.add(item);
-            if (++i >= page) break;
+        for (int j = list.size() - page; j < list.size(); j++) {
+            res.add(list.get(j));
         }
 
         return res;
@@ -47,7 +50,6 @@ public class ReceiptController {
         List<Item> items = receipt.getItems();
         for (Item item: items) {
             item.setReceipt(receipt);
-            //itemRepository.save()
         }
 
         Receipt res = receiptRepository.save(receipt);
