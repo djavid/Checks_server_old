@@ -34,12 +34,11 @@ public class ReceiptController {
         PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
         pagedListHolder.setPageSize(10);
 
-        if (page < 1 || page > pagedListHolder.getPageCount())
+        if (page < 0 || page >= pagedListHolder.getPageCount())
             return new GetReceiptsResponse("Page is incorrect!");
 
         pagedListHolder.setPage(page);
-        GetReceiptsResponse response = new GetReceiptsResponse(pagedListHolder.getPageList());
-        return response;
+        return new GetReceiptsResponse(pagedListHolder.getPageList());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
