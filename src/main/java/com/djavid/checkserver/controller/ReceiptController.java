@@ -4,7 +4,6 @@ import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.Result;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import org.springframework.beans.support.PagedListHolder;
@@ -39,7 +38,7 @@ public class ReceiptController {
             return new BaseResponse("Page is incorrect!");
 
         pagedListHolder.setPage(page);
-        return new BaseResponse(new Result(pagedListHolder.getPageList()));
+        return new BaseResponse(pagedListHolder.getPageList());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")

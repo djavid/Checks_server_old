@@ -3,7 +3,6 @@ package com.djavid.checkserver.controller;
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.Result;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +31,7 @@ public class TokenController {
     @ResponseBody
     public BaseResponse getToken(@PathVariable("id") long id) {
         Optional<RegistrationToken> token = registrationTokenRepository.findById(id);
-        return token.map(registrationToken ->
-                new BaseResponse(new Result(registrationToken)))
+        return token.map(BaseResponse::new)
                 .orElseGet(() -> new BaseResponse("No such token!"));
     }
 
@@ -46,7 +44,7 @@ public class TokenController {
 
         RegistrationToken registrationToken = registrationTokenRepository.findRegistrationTokenByToken(device_token);
         if (registrationToken != null && registrationToken.getToken().equals(device_token))
-            return new BaseResponse(new Result(registrationToken));
+            return new BaseResponse(registrationToken);
 
         try {
 
@@ -57,7 +55,7 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Saved token(" + device_token + ") with id(" + result.getId() + ")");
-                return new BaseResponse(new Result(result));
+                return new BaseResponse(result);
 
             } else if (registrationTokenRepository.findRegistrationTokenById(db_id) != null) {
 
@@ -66,7 +64,7 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Updated token(" + device_token + ") with id(" + result.getId() + ")");
-                return new BaseResponse(new Result(result));
+                return new BaseResponse(result);
 
             }
 

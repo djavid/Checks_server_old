@@ -5,9 +5,9 @@ public class BaseResponse {
 
     String status;
     String reason;
-    Result result;
+    Object result;
 
-    public BaseResponse(Result result) {
+    public BaseResponse(Object result) {
         this.result = result;
         status = "ok";
     }
@@ -34,11 +34,11 @@ public class BaseResponse {
         this.reason = reason;
     }
 
-    public Result getResult() {
+    public Object getResult() {
         return result;
     }
 
-    public void setResult(Result result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 }
