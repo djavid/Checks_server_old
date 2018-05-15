@@ -6,8 +6,8 @@ import java.util.List;
 
 public class GetReceiptsResponse {
 
-    String error;
-    List<Receipt> result;
+    private String error;
+    private List<Receipt> result;
 
     public GetReceiptsResponse(List<Receipt> result) {
         this.result = result;
