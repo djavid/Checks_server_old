@@ -1,17 +1,19 @@
 package com.djavid.checkserver.model.entity.response;
 
 
-public class BaseResponse {
+import com.djavid.checkserver.model.entity.RegistrationToken;
+
+public class TokenResponse {
 
     String error;
-    Object result;
+    RegistrationToken result;
 
-    public BaseResponse(Object result) {
+    public TokenResponse(RegistrationToken result) {
         this.result = result;
         error = "";
     }
 
-    public BaseResponse(String error) {
+    public TokenResponse(String error) {
         this.error = error;
     }
 
@@ -24,11 +26,11 @@ public class BaseResponse {
         this.error = error;
     }
 
-    public Object getResult() {
+    public RegistrationToken getResult() {
         return result;
     }
 
-    public void setResult(Object result) {
+    public void setResult(RegistrationToken result) {
         this.result = result;
     }
 }

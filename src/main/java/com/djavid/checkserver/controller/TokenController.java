@@ -2,7 +2,7 @@ package com.djavid.checkserver.controller;
 
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.RegistrationToken;
-import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.TokenResponse;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,22 +29,22 @@ public class TokenController {
 
     @RequestMapping(value = "/getTokens/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public BaseResponse getToken(@PathVariable("id") long id) {
+    public TokenResponse getToken(@PathVariable("id") long id) {
         Optional<RegistrationToken> token = registrationTokenRepository.findById(id);
-        return token.map(BaseResponse::new)
-                .orElseGet(() -> new BaseResponse("No such token!"));
+        return token.map(TokenResponse::new)
+                .orElseGet(() -> new TokenResponse("No such token!"));
     }
 
 
     @RequestMapping(value = "/registerToken", method = RequestMethod.GET)
-    public BaseResponse registerToken(@RequestParam("token") String device_token, @RequestParam("id") long db_id) {
+    public TokenResponse registerToken(@RequestParam("token") String device_token, @RequestParam("id") long db_id) {
 
         if (device_token.equals(""))
-            return new BaseResponse("Wrong device id!");
+            return new TokenResponse("Wrong device id!");
 
         RegistrationToken registrationToken = registrationTokenRepository.findRegistrationTokenByToken(device_token);
         if (registrationToken != null && registrationToken.getToken().equals(device_token))
-            return new BaseResponse(registrationToken);
+            return new TokenResponse(registrationToken);
 
         try {
 
@@ -55,7 +55,7 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Saved token(" + device_token + ") with id(" + result.getId() + ")");
-                return new BaseResponse(result);
+                return new TokenResponse(result);
 
             } else if (registrationTokenRepository.findRegistrationTokenById(db_id) != null) {
 
@@ -64,14 +64,14 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Updated token(" + device_token + ") with id(" + result.getId() + ")");
-                return new BaseResponse(result);
+                return new TokenResponse(result);
 
             }
 
-            return new BaseResponse("Something gone wrong");
+            return new TokenResponse("Something gone wrong");
 
         } catch (Exception e) {
-            return new BaseResponse(e.getMessage());
+            return new TokenResponse(e.getMessage());
         }
     }
 
