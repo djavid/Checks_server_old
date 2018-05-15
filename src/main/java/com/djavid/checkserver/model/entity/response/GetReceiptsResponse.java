@@ -1,15 +1,12 @@
 package com.djavid.checkserver.model.entity.response;
 
-import com.djavid.checkserver.model.entity.Receipt;
-
-import java.util.List;
 
 public class GetReceiptsResponse {
 
     private String error;
-    private List<Receipt> result;
+    private Object result;
 
-    public GetReceiptsResponse(List<Receipt> result) {
+    public GetReceiptsResponse(Object result) {
         this.result = result;
         error = "";
     }
@@ -27,11 +24,11 @@ public class GetReceiptsResponse {
         this.error = error;
     }
 
-    public List<Receipt> getResult() {
+    public Object getResult() {
         return result;
     }
 
-    public void setResult(List<Receipt> result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 }
