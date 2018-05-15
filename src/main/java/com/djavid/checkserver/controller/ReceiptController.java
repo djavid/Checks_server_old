@@ -38,7 +38,8 @@ public class ReceiptController {
             return new GetReceiptsResponse("Page is incorrect!");
 
         pagedListHolder.setPage(page);
-        return new GetReceiptsResponse(pagedListHolder.getPageList());
+        GetReceiptsResponse response = new GetReceiptsResponse(pagedListHolder.getPageList());
+        return response;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
