@@ -3,6 +3,8 @@ package com.djavid.checkserver.controller;
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
+import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.Result;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import org.springframework.beans.support.PagedListHolder;
@@ -25,35 +27,19 @@ public class ReceiptController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public List<Receipt> getReceipts(@RequestParam("page") int page) {
-
-        if (page < 1) return new ArrayList<>();
+    public BaseResponse getReceipts(@RequestParam("page") int page) {
 
         List<Receipt> list = new ArrayList<>();
-        for (Receipt item : receiptRepository.findAll()) {
-            list.add(item);
-        }
-
-//        for (int j = list.size() - 1; j > list.size() - page; j--) {
-//            res.add(list.get(j));
-//        }
+        receiptRepository.findAll().forEach(list::add);
 
         PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
         pagedListHolder.setPageSize(10);
-        pagedListHolder.setPage(page);
-        return pagedListHolder.getPageList();
 
-//        List<Receipt> res = new ArrayList<>();
-//        int start = list.size() - 1 - (page - 1) * 10;
-//
-//        int interval = 10;
-//        if (start < 10)  interval = start;
-//
-//        for (int j = start; j > start - interval; j--) {
-//            res.add(list.get(j));
-//        }
-//
-//        return res;
+        if (page < 1 || page > pagedListHolder.getPageCount())
+            return new BaseResponse("Page is incorrect!");
+
+        pagedListHolder.setPage(page);
+        return new BaseResponse(new Result(pagedListHolder.getPageList()));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
