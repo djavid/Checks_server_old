@@ -39,7 +39,11 @@ public class ReceiptController {
 
         List<Receipt> res = new ArrayList<>();
         int start = list.size() - 1 - (page - 1) * 10;
-        for (int j = start; j > start - 10; j--) {
+
+        int interval = 10;
+        if (start < 10)  interval = start;
+
+        for (int j = start; j > start - interval; j--) {
             res.add(list.get(j));
         }
 
