@@ -3,35 +3,25 @@ package com.djavid.checkserver.model.entity.response;
 
 public class BaseResponse {
 
-    String status;
-    String reason;
+    String error;
     Object result;
 
     public BaseResponse(Object result) {
         this.result = result;
-        status = "ok";
+        error = "";
     }
 
     public BaseResponse(String error) {
-        status = "bad";
-        this.reason = error;
+        this.error = error;
     }
 
 
-    public String getStatus() {
-        return status;
+    public String getError() {
+        return error;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setError(String error) {
+        this.error = error;
     }
 
     public Object getResult() {
