@@ -5,6 +5,7 @@ import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,17 +38,22 @@ public class ReceiptController {
 //            res.add(list.get(j));
 //        }
 
-        List<Receipt> res = new ArrayList<>();
-        int start = list.size() - 1 - (page - 1) * 10;
+        PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
+        pagedListHolder.setPageSize(10);
+        pagedListHolder.setPage(page);
+        return pagedListHolder.getPageList();
 
-        int interval = 10;
-        if (start < 10)  interval = start;
-
-        for (int j = start; j > start - interval; j--) {
-            res.add(list.get(j));
-        }
-
-        return res;
+//        List<Receipt> res = new ArrayList<>();
+//        int start = list.size() - 1 - (page - 1) * 10;
+//
+//        int interval = 10;
+//        if (start < 10)  interval = start;
+//
+//        for (int j = start; j > start - interval; j--) {
+//            res.add(list.get(j));
+//        }
+//
+//        return res;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
