@@ -26,6 +26,8 @@ public class ReceiptController {
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public List<Receipt> getReceipts(@RequestParam("page") int page) {
 
+        if (page < 1) return new ArrayList<>();
+
         List<Receipt> list = new ArrayList<>();
         for (Receipt item : receiptRepository.findAll()) {
             list.add(item);
