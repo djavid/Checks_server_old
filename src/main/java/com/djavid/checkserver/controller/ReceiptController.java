@@ -3,6 +3,7 @@ package com.djavid.checkserver.controller;
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
+import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
@@ -26,7 +27,7 @@ public class ReceiptController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public GetReceiptsResponse getReceipts(@RequestParam("page") int page) {
+    public BaseResponse getReceipts(@RequestParam("page") int page) {
 
         List<Receipt> list = new ArrayList<>();
         receiptRepository.findAll().forEach(list::add);
@@ -35,10 +36,11 @@ public class ReceiptController {
         pagedListHolder.setPageSize(10);
 
         if (page < 0 || page >= pagedListHolder.getPageCount())
-            return new GetReceiptsResponse("Page is incorrect!");
+            return new BaseResponse("Page is incorrect!");
 
         pagedListHolder.setPage(page);
-        return new GetReceiptsResponse(pagedListHolder.getPageList());
+        return new BaseResponse(new GetReceiptsResponse(pagedListHolder.getPageList(),
+                !pagedListHolder.isLastPage()));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")

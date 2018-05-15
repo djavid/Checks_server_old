@@ -1,34 +1,34 @@
 package com.djavid.checkserver.model.entity.response;
 
+import com.djavid.checkserver.model.entity.Receipt;
+
+import java.util.List;
 
 public class GetReceiptsResponse {
 
-    private String error;
-    private Object result;
+    private boolean hasNext;
+    private List<Receipt> receipts;
 
-    public GetReceiptsResponse(Object result) {
-        this.result = result;
-        error = "";
-    }
 
-    public GetReceiptsResponse(String error) {
-        this.error = error;
+    public GetReceiptsResponse(List<Receipt> receipts, boolean hasNext) {
+        this.hasNext = hasNext;
+        this.receipts = receipts;
     }
 
 
-    public String getError() {
-        return error;
+    public boolean isHasNext() {
+        return hasNext;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setHasNext(boolean hasNext) {
+        this.hasNext = hasNext;
     }
 
-    public Object getResult() {
-        return result;
+    public List<Receipt> getReceipts() {
+        return receipts;
     }
 
-    public void setResult(Object result) {
-        this.result = result;
+    public void setReceipts(List<Receipt> receipts) {
+        this.receipts = receipts;
     }
 }
