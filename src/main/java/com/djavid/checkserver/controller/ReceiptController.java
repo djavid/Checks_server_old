@@ -1,17 +1,21 @@
 package com.djavid.checkserver.controller;
 
 import com.djavid.checkserver.ChecksApplication;
+import com.djavid.checkserver.model.api.Api;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
+import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
+import io.reactivex.disposables.Disposable;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,12 +25,16 @@ public class ReceiptController {
     private final ReceiptRepository receiptRepository;
     private final ItemRepository itemRepository;
     private final RegistrationTokenRepository tokenRepository;
+    private final Api api;
+    private Disposable disposable;
+
 
     public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
-                             RegistrationTokenRepository tokenRepository) {
+                             RegistrationTokenRepository tokenRepository, Api api) {
         this.receiptRepository = receiptRepository;
         this.itemRepository = itemRepository;
         this.tokenRepository = tokenRepository;
+        this.api = api;
     }
 
 
@@ -66,6 +74,7 @@ public class ReceiptController {
         return receiptRepository.findReceiptByReceiptId(id);
     }
 
+
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public BaseResponse postReceipt(@RequestBody Receipt receipt) {
         if (receipt == null)
@@ -73,6 +82,25 @@ public class ReceiptController {
 
         try {
             receipt.setCreated(System.currentTimeMillis());
+
+            List<String> values = new ArrayList<>();
+            receipt.getItems().forEach(it -> { values.add(it.getName()); });
+
+            disposable = api.getCategories(new FlaskValues(values))
+                    .observeOn(io.reactivex.schedulers.Schedulers.io())
+                    .subscribeOn(io.reactivex.schedulers.Schedulers.newThread())
+                    .retry(2)
+                    .subscribe(it -> {
+
+                        List<Item> items = receipt.getItems();
+                        for (int i = 0; i < items.size(); i++) {
+                            items.get(i).setName(it.getNormalized().get(i));
+                            items.get(i).setCategory(it.getCategories().get(i));
+                            itemRepository.save(items.get(i));
+                        }
+
+                    }, Throwable::printStackTrace);
+
             List<Item> items = receipt.getItems();
             for (Item item: items) {
                 item.setReceipt(receipt);
@@ -88,4 +116,9 @@ public class ReceiptController {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        disposable.dispose();
+    }
 }

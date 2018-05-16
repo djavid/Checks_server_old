@@ -12,7 +12,6 @@ public class Receipt {
     private Long receiptId;
     private long tokenId;
     private long created;
-    private String category;
 
     private Long fiscalSign;
     private Long fiscalDocumentNumber;
@@ -257,13 +256,5 @@ public class Receipt {
 
     public void setCreated(long created) {
         this.created = created;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 }

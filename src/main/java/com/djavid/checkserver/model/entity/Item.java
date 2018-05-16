@@ -16,6 +16,7 @@ public class Item {
     private String name;
     private Long nds18;
     private Long nds10;
+    private String category;
 
     @JsonIgnore
     @ManyToOne
@@ -35,16 +36,19 @@ public class Item {
 
     public Item() { }
 
+
     @Override
     public String toString() {
         return "Item{" +
-                "item_id=" + itemId +
+                "itemId=" + itemId +
                 ", quantity=" + quantity +
                 ", price=" + price +
                 ", sum=" + sum +
                 ", name='" + name + '\'' +
                 ", nds18=" + nds18 +
                 ", nds10=" + nds10 +
+                ", category='" + category + '\'' +
+                ", receipt=" + receipt +
                 '}';
     }
 
@@ -110,5 +114,13 @@ public class Item {
 
     public void setReceipt(Receipt receipt) {
         this.receipt = receipt;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
