@@ -8,6 +8,7 @@ import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
+import com.djavid.checkserver.model.repository.FnsRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
@@ -29,15 +30,17 @@ public class ReceiptController {
     private final ReceiptRepository receiptRepository;
     private final ItemRepository itemRepository;
     private final RegistrationTokenRepository tokenRepository;
+    private final FnsRepository fnsRepository;
     private final Api api;
     private Disposable disposable;
 
 
     public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
-                             RegistrationTokenRepository tokenRepository, Api api) {
+                             RegistrationTokenRepository tokenRepository, Api api, FnsRepository fnsRepository) {
         this.receiptRepository = receiptRepository;
         this.itemRepository = itemRepository;
         this.tokenRepository = tokenRepository;
+        this.fnsRepository = fnsRepository;
         this.api = api;
     }
 
@@ -123,6 +126,25 @@ public class ReceiptController {
             return new BaseResponse("Something gone wrong");
         }
     }
+
+
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    public BaseResponse postReceiptString(@RequestHeader("Token") String token,
+                                          @RequestParam String fiscalDriveNumber,
+                                          @RequestParam String fiscalDocumentNumber,
+                                          @RequestParam String fiscalSign) {
+        try {
+            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+                    .doOnError(Throwable::printStackTrace)
+                    .blockingGet().getDocument().getReceipt());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new BaseResponse("Something gone wrong");
+        }
+    }
+
+
 
     @Override
     protected void finalize() throws Throwable {
