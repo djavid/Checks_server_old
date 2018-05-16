@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.reactivex.schedulers.Schedulers.io;
+import static io.reactivex.schedulers.Schedulers.newThread;
+
+
 @RestController
 @RequestMapping(value = "receipt")
 public class ReceiptController {
@@ -76,11 +80,17 @@ public class ReceiptController {
 
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public BaseResponse postReceipt(@RequestBody Receipt receipt) {
-        if (receipt == null)
-            return  new BaseResponse("Sent null entity!");
+    public BaseResponse postReceipt(@RequestHeader("Token") String token, @RequestBody Receipt receipt) {
 
         try {
+            if (receipt == null)
+                return  new BaseResponse("Sent null entity!");
+
+            RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+            if (registrationToken == null)
+                return new BaseResponse("Token is incorrect!");
+
+            receipt.setTokenId(registrationToken.getId());
             receipt.setCreated(System.currentTimeMillis());
             receipt.getItems().forEach(it -> it.setReceipt(receipt));
 
@@ -92,8 +102,8 @@ public class ReceiptController {
             items.forEach(it -> values.add(it.getName()));
 
             disposable = api.getCategories(new FlaskValues(values))
-                    .observeOn(io.reactivex.schedulers.Schedulers.io())
-                    .subscribeOn(io.reactivex.schedulers.Schedulers.newThread())
+                    .observeOn(io())
+                    .subscribeOn(newThread())
                     .retry(2)
                     .subscribe(it -> {
 
