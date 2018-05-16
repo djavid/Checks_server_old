@@ -40,7 +40,8 @@ public class ReceiptController {
 
         try {
             RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
-            if (registrationToken == null) return null;
+            if (registrationToken == null)
+                return new BaseResponse("Token is incorrect!");
             registrationToken.setLastVisited(System.currentTimeMillis());
             tokenRepository.save(registrationToken);
 
