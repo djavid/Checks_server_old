@@ -82,9 +82,14 @@ public class ReceiptController {
 
         try {
             receipt.setCreated(System.currentTimeMillis());
+            receipt.getItems().forEach(it -> it.setReceipt(receipt));
 
+            Receipt res = receiptRepository.save(receipt);
+            ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
+
+            List<Item> items = res.getItems();
             List<String> values = new ArrayList<>();
-            receipt.getItems().forEach(it -> { values.add(it.getName()); });
+            items.forEach(it -> values.add(it.getName()));
 
             disposable = api.getCategories(new FlaskValues(values))
                     .observeOn(io.reactivex.schedulers.Schedulers.io())
@@ -92,7 +97,6 @@ public class ReceiptController {
                     .retry(2)
                     .subscribe(it -> {
 
-                        List<Item> items = receipt.getItems();
                         for (int i = 0; i < items.size(); i++) {
                             items.get(i).setName(it.getNormalized().get(i));
                             items.get(i).setCategory(it.getCategories().get(i));
@@ -100,14 +104,6 @@ public class ReceiptController {
                         }
 
                     }, Throwable::printStackTrace);
-
-            List<Item> items = receipt.getItems();
-            for (Item item: items) {
-                item.setReceipt(receipt);
-            }
-
-            Receipt res = receiptRepository.save(receipt);
-            ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
 
             return new BaseResponse(res);
 
