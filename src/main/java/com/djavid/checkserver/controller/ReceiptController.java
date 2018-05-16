@@ -30,7 +30,7 @@ public class ReceiptController {
     }
 
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json")
     public BaseResponse getReceipts() {
         return new BaseResponse(receiptRepository.findAll());
     }
