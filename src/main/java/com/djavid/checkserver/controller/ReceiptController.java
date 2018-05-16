@@ -12,7 +12,6 @@ import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,22 +30,22 @@ public class ReceiptController {
     }
 
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public BaseResponse getReceipts(@RequestParam("page") int page) {
-
-        List<Receipt> list = new ArrayList<>();
-        receiptRepository.findAll().forEach(list::add);
-
-        PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
-        pagedListHolder.setPageSize(10);
-
-        if (page < 0 || page >= pagedListHolder.getPageCount())
-            return new BaseResponse("Page is incorrect!");
-
-        pagedListHolder.setPage(page);
-        return new BaseResponse(new GetReceiptsResponse(pagedListHolder.getPageList(),
-                !pagedListHolder.isLastPage()));
-    }
+//    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+//    public BaseResponse getReceipts(@RequestParam("page") int page) {
+//
+//        List<Receipt> list = new ArrayList<>();
+//        receiptRepository.findAll().forEach(list::add);
+//
+//        PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
+//        pagedListHolder.setPageSize(10);
+//
+//        if (page < 0 || page >= pagedListHolder.getPageCount())
+//            return new BaseResponse("Page is incorrect!");
+//
+//        pagedListHolder.setPage(page);
+//        return new BaseResponse(new GetReceiptsResponse(pagedListHolder.getPageList(),
+//                !pagedListHolder.isLastPage()));
+//    }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public BaseResponse getReceiptsByToken(@RequestHeader("Token") String token, @RequestParam("page") int page) {
