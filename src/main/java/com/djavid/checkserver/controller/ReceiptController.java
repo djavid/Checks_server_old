@@ -69,6 +69,7 @@ public class ReceiptController {
                     !pagedListHolder.isLastPage()));
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new BaseResponse("Something gone wrong");
         }
     }
@@ -118,6 +119,7 @@ public class ReceiptController {
             return new BaseResponse(res);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new BaseResponse("Something gone wrong");
         }
     }
