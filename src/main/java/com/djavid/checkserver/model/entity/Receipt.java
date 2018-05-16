@@ -10,7 +10,9 @@ public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long receiptId;
-    //val buyerId: Long,
+    private long tokenId;
+    private long created;
+
     private Long fiscalSign;
     private Long fiscalDocumentNumber;
     private Long ecashTotalSum;
@@ -32,17 +34,20 @@ public class Receipt {
     private Long totalSum;
     private String kktRegId;
     private String operator;
-
     private String retailPlaceAddress; //адрес
     //modifiers[] (items too)
     //stornoItems[]
 
+
     public Receipt() { }
+
 
     @Override
     public String toString() {
         return "Receipt{" +
                 "receiptId=" + receiptId +
+                ", tokenId=" + tokenId +
+                ", created=" + created +
                 ", fiscalSign=" + fiscalSign +
                 ", fiscalDocumentNumber=" + fiscalDocumentNumber +
                 ", ecashTotalSum=" + ecashTotalSum +
@@ -62,8 +67,10 @@ public class Receipt {
                 ", totalSum=" + totalSum +
                 ", kktRegId='" + kktRegId + '\'' +
                 ", operator='" + operator + '\'' +
+                ", retailPlaceAddress='" + retailPlaceAddress + '\'' +
                 '}';
     }
+
 
     public Long getReceiptId() {
         return receiptId;
@@ -235,5 +242,21 @@ public class Receipt {
 
     public void setRetailPlaceAddress(String retailPlaceAddress) {
         this.retailPlaceAddress = retailPlaceAddress;
+    }
+
+    public long getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(long tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
     }
 }

@@ -2,6 +2,7 @@ package com.djavid.checkserver.controller;
 
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.RegistrationToken;
+import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.entity.response.TokenResponse;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import org.springframework.web.bind.annotation.*;
@@ -37,14 +38,14 @@ public class TokenController {
 
 
     @RequestMapping(value = "/registerToken", method = RequestMethod.GET)
-    public TokenResponse registerToken(@RequestParam("token") String device_token, @RequestParam("id") long db_id) {
+    public BaseResponse registerToken(@RequestParam("token") String device_token, @RequestParam("id") long db_id) {
 
         if (device_token.equals(""))
-            return new TokenResponse("Wrong device id!");
+            return new BaseResponse("Wrong device id!");
 
         RegistrationToken registrationToken = registrationTokenRepository.findRegistrationTokenByToken(device_token);
         if (registrationToken != null && registrationToken.getToken().equals(device_token))
-            return new TokenResponse(registrationToken);
+            return new BaseResponse(registrationToken);
 
         try {
 
@@ -55,7 +56,7 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Saved token(" + device_token + ") with id(" + result.getId() + ")");
-                return new TokenResponse(result);
+                return new BaseResponse(result);
 
             } else if (registrationTokenRepository.findRegistrationTokenById(db_id) != null) {
 
@@ -64,14 +65,14 @@ public class TokenController {
                 RegistrationToken result = registrationTokenRepository.save(token);
 
                 ChecksApplication.log.info("Updated token(" + device_token + ") with id(" + result.getId() + ")");
-                return new TokenResponse(result);
+                return new BaseResponse(result);
 
             }
 
-            return new TokenResponse("Something gone wrong");
+            return new BaseResponse("Something gone wrong");
 
         } catch (Exception e) {
-            return new TokenResponse(e.getMessage());
+            return new BaseResponse(e.getMessage());
         }
     }
 
