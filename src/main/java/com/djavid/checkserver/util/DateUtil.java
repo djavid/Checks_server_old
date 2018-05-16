@@ -25,11 +25,11 @@ public class DateUtil {
                         add = true;
                     break;
                 case WEEK:
-                    if (date.isAfter(currentDate.withTimeAtStartOfDay().withDayOfWeek(0)))
+                    if (date.isAfter(currentDate.withTimeAtStartOfDay().withDayOfWeek(1)))
                         add = true;
                     break;
                 case MONTH:
-                    if (date.isAfter(currentDate.withTimeAtStartOfDay().withDayOfMonth(0)))
+                    if (date.isAfter(currentDate.withTimeAtStartOfDay().withDayOfMonth(1)))
                         add = true;
                     break;
                 case LAST_DAY:
