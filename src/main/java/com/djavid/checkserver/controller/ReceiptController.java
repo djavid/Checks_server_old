@@ -128,7 +128,7 @@ public class ReceiptController {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
     public BaseResponse postReceiptString(@RequestHeader("Token") String token,
                                           @RequestParam String fiscalDriveNumber,
                                           @RequestParam String fiscalDocumentNumber,
