@@ -11,6 +11,7 @@ import java.util.Optional;
 
 
 @RestController
+@RequestMapping(value = "token")
 public class TokenController {
 
     private final RegistrationTokenRepository registrationTokenRepository;
@@ -21,14 +22,14 @@ public class TokenController {
     }
 
 
-    @RequestMapping(value = "/getTokens/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public Iterable<RegistrationToken> getTokens() {
         return registrationTokenRepository.findAll();
     }
 
 
-    @RequestMapping(value = "/getTokens/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public TokenResponse getToken(@PathVariable("id") long id) {
         Optional<RegistrationToken> token = registrationTokenRepository.findById(id);
@@ -37,7 +38,7 @@ public class TokenController {
     }
 
 
-    @RequestMapping(value = "/registerToken", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST)
     public BaseResponse registerToken(@RequestParam("token") String device_token, @RequestParam("id") long db_id) {
 
         if (device_token.equals(""))
