@@ -24,41 +24,34 @@ public class FnsService {
                                             @RequestParam String fiscalDocumentNumber,
                                             @RequestParam String fiscalSign) {
 
-//            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-//                    .doOnError(Throwable::printStackTrace)
-//                    .blockingGet().getDocument().getReceipt());
-
-
         DeferredResult<CheckResponseFns> deferredResult = new DeferredResult<>();
 
-
-        final CheckResponseFns response;
         Disposable disposable = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-//                .doOnError(throwable -> {
-//                    deferredResult.setErrorResult(throwable);
-//
-//                    if (throwable instanceof HttpException) {
-//                        System.out.println(((HttpException) throwable).code());
-//                    }
-//                    else if (throwable instanceof IOException) {
-//                        System.out.println(throwable.getMessage());
-//                    }
-//                })
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
                     System.out.println(responseFns);
                 }, throwable -> {
 
-
                     if (throwable instanceof HttpException) {
+
                         deferredResult.setErrorResult(((HttpException) throwable).code());
                         System.out.println(((HttpException) throwable).code());
+
                     } else if (throwable instanceof TimeoutException) {
+
+                        deferredResult.setErrorResult(throwable.getMessage());
                         System.out.println(throwable.getMessage());
+
                     } else if (throwable instanceof IOException) {
+
+                        deferredResult.setErrorResult(throwable.getMessage());
                         System.out.println(throwable.getMessage());
+
                     } else {
+
+                        deferredResult.setErrorResult(throwable.getMessage());
                         System.out.println(throwable.getMessage());
+
                     }
                 });
 
@@ -66,74 +59,6 @@ public class FnsService {
 
         return deferredResult;
 
-
-//                .doOnError(throwable -> {
-//                    if (throwable instanceof HttpException) {
-//                        HttpException error = (HttpException) throwable;
-//                        ChecksApplication.log.error(error.code() + " " + error.message());
-//
-//                        if (error.code() == 406) {
-//                            //try it again in 24/48 hours
-//                            //return response
-//                        } else if (error.code() == 400) {
-//
-//                        }
-//                    }
-//                })
-//                .onErrorReturn(throwable -> {
-//                    if (throwable instanceof HttpException) {
-//
-//                        return ((HttpException) throwable).response();
-//
-//                    }
-////                    else if (throwable instanceof IOException) {
-////
-////                    } else if (throwable instanceof EOFException) {
-////
-////                    }
-//
-//                    System.out.println(throwable.getMessage());
-//                    return null;
-//                })
-//                .subscribe(responseFns -> {
-//                    response = responseFns;
-//                }, throwable -> {
-//
-//                });
-
-//        if (response == null) return new BaseResponse("Something gone wrong!");
-//
-//        System.out.println(response.toString());
-//        System.out.println(response.code());
-//        System.out.println(response.getStatusCodeValue());
-
-//        System.out.println(response.getStatusCodeValue());
-//        System.out.println(response.getStatusCode());
-//        if (response.getStatusCode().value() == 202) {
-//
-//            ChecksApplication.log.info(response.toString());
-//            return new BaseResponse(response.getStatusCode());
-//
-//        } else if (response.getStatusCode().value() == 200) {
-//
-//            ChecksApplication.log.info(response.toString());
-//            return new BaseResponse(response.getBody());
-//
-//        } else if (response.getStatusCode().value() == 406) {
-//
-//            ChecksApplication.log.info(response.toString());
-//            return new BaseResponse(response.getStatusCode());
-//
-//        } else if (response.getStatusCode().value() == 400) {
-//
-//            ChecksApplication.log.info(response.toString());
-//            return new BaseResponse(response.getStatusCode());
-//
-//        }
-
-
-//        ChecksApplication.log.info(response.toString());
-//        return new BaseResponse(response.code());
     }
 
     @Override
