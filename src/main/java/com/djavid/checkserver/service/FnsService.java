@@ -11,6 +11,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import retrofit2.HttpException;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class FnsService {
@@ -33,25 +34,31 @@ public class FnsService {
 
         final CheckResponseFns response;
         Disposable disposable = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-                .doOnError(throwable -> {
-                    //throwable.printStackTrace();
-                })
-                .doOnError(throwable -> {
-                    deferredResult.setErrorResult(throwable);
-
-                    if (throwable instanceof HttpException) {
-                        System.out.println(((HttpException) throwable).code());
-                    }
-                    else if (throwable instanceof IOException) {
-                        System.out.println(throwable.getMessage());
-                    }
-                })
+//                .doOnError(throwable -> {
+//                    deferredResult.setErrorResult(throwable);
+//
+//                    if (throwable instanceof HttpException) {
+//                        System.out.println(((HttpException) throwable).code());
+//                    }
+//                    else if (throwable instanceof IOException) {
+//                        System.out.println(throwable.getMessage());
+//                    }
+//                })
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
                     System.out.println(responseFns);
                 }, throwable -> {
                     deferredResult.setErrorResult(throwable);
-                    //throwable.printStackTrace();
+
+                    if (throwable instanceof HttpException) {
+                        System.out.println(((HttpException) throwable).code());
+                    } else if (throwable instanceof TimeoutException) {
+                        System.out.println(throwable.getMessage());
+                    } else if (throwable instanceof IOException) {
+                        System.out.println(throwable.getMessage());
+                    } else {
+                        System.out.println(throwable.getMessage());
+                    }
                 });
 
         compositeDisposable.add(disposable);
