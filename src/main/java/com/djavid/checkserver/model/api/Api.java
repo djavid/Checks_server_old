@@ -12,7 +12,7 @@ public interface Api {
     Single<FlaskResponse> getCategories(@Body FlaskValues values);
 
     @GET("https://proverkacheka.nalog.ru:9999/" + "v1/inns/*/kkts/*/fss/{fss}/tickets/{tickets}")
-    Single<Response> getCheck(
+    Response getCheck(
             @Path("fss") String fiscalDriveNumber,
             @Path("tickets") String fiscalDocumentNumber,
 
