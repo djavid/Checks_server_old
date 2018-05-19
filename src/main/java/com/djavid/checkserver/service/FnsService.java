@@ -4,6 +4,7 @@ import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.repository.FnsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +39,8 @@ public class FnsService {
                         }
                     }
                 })
+                .onErrorReturn(throwable ->
+                        new ResponseEntity(HttpStatus.resolve(((HttpException) throwable).code())))
                 .blockingGet();
 
         if (response.getStatusCode().value() == 202) {

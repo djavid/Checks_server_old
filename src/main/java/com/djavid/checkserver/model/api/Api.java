@@ -1,7 +1,6 @@
 package com.djavid.checkserver.model.api;
 
 import com.djavid.checkserver.model.entity.query.FlaskValues;
-import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.FlaskResponse;
 import io.reactivex.Single;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ public interface Api {
     Single<FlaskResponse> getCategories(@Body FlaskValues values);
 
     @GET("https://proverkacheka.nalog.ru:9999/" + "v1/inns/*/kkts/*/fss/{fss}/tickets/{tickets}")
-    Single<ResponseEntity<CheckResponseFns>> getCheck(
+    Single<ResponseEntity> getCheck(
             @Path("fss") String fiscalDriveNumber,
             @Path("tickets") String fiscalDocumentNumber,
 
