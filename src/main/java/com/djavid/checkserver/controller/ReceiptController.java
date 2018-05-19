@@ -142,6 +142,8 @@ public class ReceiptController {
 
     @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
     public DeferredResult<BaseResponse> postReceiptString(
+                                            @RequestParam String date,
+                                            @RequestParam String sum,
                                             @RequestHeader("Token") String token,
                                             @RequestParam String fiscalDriveNumber,
                                             @RequestParam String fiscalDocumentNumber,
@@ -156,7 +158,7 @@ public class ReceiptController {
 
         //load check from fns
         DeferredResult<BaseResponse> fnsResult = checkService
-                .getCheckFromFns(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+                .getCheckFromFns(date, sum, fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
 
         //handle check result
         fnsResult.setResultHandler(result -> {

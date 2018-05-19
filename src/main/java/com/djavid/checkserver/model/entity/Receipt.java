@@ -13,6 +13,7 @@ public class Receipt {
     private long tokenId;
     private long created;
     private String logo;
+    private boolean isEmpty;
 
     private Long fiscalSign;
     private Long fiscalDocumentNumber;
@@ -39,6 +40,33 @@ public class Receipt {
 
 
     public Receipt() { }
+
+    public Receipt(boolean isEmpty, String date, String sum, String fiscalDriveNumber,
+                   String fiscalDocumentNumber, String fiscalSign) {
+
+        this.isEmpty = isEmpty;
+        this.dateTime = date;
+        this.fiscalDriveNumber = fiscalDriveNumber;
+
+        try {
+            this.totalSum = Long.parseLong(sum.replace(".", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            this.fiscalDocumentNumber = Long.parseLong(fiscalDocumentNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            this.fiscalSign = Long.parseLong(fiscalSign);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     @Override
@@ -265,5 +293,13 @@ public class Receipt {
 
     public void setLogo(String logo) {
         this.logo = logo;
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
+    public void setEmpty(boolean empty) {
+        isEmpty = empty;
     }
 }

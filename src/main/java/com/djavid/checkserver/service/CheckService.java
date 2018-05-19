@@ -14,9 +14,9 @@ import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.async.DeferredResult;
 import retrofit2.HttpException;
 
@@ -38,9 +38,11 @@ public class CheckService {
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
-    public DeferredResult<BaseResponse> getCheckFromFns(@RequestParam String fiscalDriveNumber,
-                                                        @RequestParam String fiscalDocumentNumber,
-                                                        @RequestParam String fiscalSign) {
+    public DeferredResult<BaseResponse> getCheckFromFns(String date,
+                                                        String sum,
+                                                        String fiscalDriveNumber,
+                                                        String fiscalDocumentNumber,
+                                                        String fiscalSign) {
 
         DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
 
@@ -64,13 +66,31 @@ public class CheckService {
 
                             if (throwable instanceof HttpException) {
                                 HttpException httpException = (HttpException) throwable;
-                                deferredResult.setErrorResult(
-                                        new BaseResponse(httpException.code() + " " + httpException.message()));
+                                DateTime currentDate = new DateTime();
+                                DateTime checkDate = DateTime.parse(date);
 
-                                try {
-                                    System.out.println(httpException.response().toString());
-                                } catch (Exception e) {
-                                    System.out.println(e.getMessage());
+                                if (httpException.code() == 406) {
+
+                                    if (checkDate.isAfter(currentDate.minusHours(25))) {
+                                        //чек напечатан в последние 25 часов и пока не поступил в налоговую
+                                        deferredResult.setErrorResult(
+                                                new BaseResponse("Check has not loaded yet."));
+
+                                        //сохраняем его в бд, чтобы получить потом
+                                        Receipt receipt = new Receipt(true, date, sum,
+                                                fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+                                        receiptRepository.save(receipt);
+                                    }
+
+                                    if (checkDate.isBefore(currentDate.minusHours(25))) {
+                                        //чек устарел
+                                        deferredResult.setErrorResult(
+                                                new BaseResponse("Check is outdated."));
+                                    }
+
+                                } else {
+                                    deferredResult.setErrorResult(
+                                            new BaseResponse(httpException.code() + " " + httpException.message()));
                                 }
 
                             } else {
