@@ -5,10 +5,7 @@ import com.djavid.checkserver.model.repository.FnsRepository;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +14,7 @@ import retrofit2.HttpException;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -42,30 +40,21 @@ public class FnsService {
         });
 
         Disposable disposable = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-                .retryWhen(new Function<Flowable<Throwable>, Publisher<?>>() {
-                    @Override
-                    public Publisher<?> apply(Flowable<Throwable> throwableFlowable) {
-                        return throwableFlowable.flatMap(new Function<Throwable, Publisher<?>>() {
-                            @Override
-                            public Publisher<?> apply(Throwable throwable) {
-                                return new Publisher<Object>() {
-                                    @Override
-                                    public void subscribe(Subscriber<? super Object> subscriber) {
+                .retryWhen(throwableFlowable -> throwableFlowable
+                                .flatMap(throwable -> subscriber -> {
 
-                                        if (throwable instanceof EOFException) {
-                                            System.out.println("Retrying because 202 Accepted");
-                                            subscriber.onNext(2);
-                                        } else {
-                                            System.out.println("Not retrying because " + throwable.getMessage());
-                                            subscriber.onError(throwable);
-                                        }
-
+                                    if (throwable instanceof EOFException) {
+                                        System.out.println("Retrying because 202 Accepted");
+                                        subscriber.onNext(2);
+                                    } else {
+                                        System.out.println("Not retrying because " + throwable.getMessage());
+                                        subscriber.onError(throwable);
                                     }
-                                };
-                            }
-                        });
-                    }
-                })
+
+                                })
+                                .delay(1, TimeUnit.SECONDS)
+                                .zipWith(Flowable.range(1, 1), (n, i) -> i)
+                )
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
                     System.out.println(responseFns);
