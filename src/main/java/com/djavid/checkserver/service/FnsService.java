@@ -4,11 +4,10 @@ import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.repository.FnsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import retrofit2.HttpException;
+import retrofit2.Response;
 
 @Service
 public class FnsService {
@@ -25,7 +24,7 @@ public class FnsService {
 //                    .doOnError(Throwable::printStackTrace)
 //                    .blockingGet().getDocument().getReceipt());
 
-        ResponseEntity response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+        Response response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
                 .doOnError(throwable -> {
                     if (throwable instanceof HttpException) {
                         HttpException error = (HttpException) throwable;
@@ -39,53 +38,54 @@ public class FnsService {
                         }
                     }
                 })
-                .onErrorReturn(throwable -> {
-                    if (throwable instanceof HttpException) {
-
-                        return new ResponseEntity(HttpStatus.resolve(((HttpException) throwable).code()));
-
-                    }
-//                    else if (throwable instanceof IOException) {
+//                .onErrorReturn(throwable -> {
+//                    if (throwable instanceof HttpException) {
 //
-//                    } else if (throwable instanceof EOFException) {
+//                        return ((HttpException) throwable).response();
 //
 //                    }
-
-                    System.out.println(throwable.getMessage());
-                    return null;
-                })
+////                    else if (throwable instanceof IOException) {
+////
+////                    } else if (throwable instanceof EOFException) {
+////
+////                    }
+//
+//                    System.out.println(throwable.getMessage());
+//                    return null;
+//                })
                 .blockingGet();
 
         if (response == null) return new BaseResponse("Something gone wrong!");
 
         System.out.println(response.toString());
-        System.out.println(response.getStatusCodeValue());
-        System.out.println(response.getStatusCode());
-        if (response.getStatusCode().value() == 202) {
-
-            ChecksApplication.log.info(response.toString());
-            return new BaseResponse(response.getStatusCode());
-
-        } else if (response.getStatusCode().value() == 200) {
-
-            ChecksApplication.log.info(response.toString());
-            return new BaseResponse(response.getBody());
-
-        } else if (response.getStatusCode().value() == 406) {
-
-            ChecksApplication.log.info(response.toString());
-            return new BaseResponse(response.getStatusCode());
-
-        } else if (response.getStatusCode().value() == 400) {
-
-            ChecksApplication.log.info(response.toString());
-            return new BaseResponse(response.getStatusCode());
-
-        }
+        System.out.println(response.code());
+//        System.out.println(response.getStatusCodeValue());
+//        System.out.println(response.getStatusCode());
+//        if (response.getStatusCode().value() == 202) {
+//
+//            ChecksApplication.log.info(response.toString());
+//            return new BaseResponse(response.getStatusCode());
+//
+//        } else if (response.getStatusCode().value() == 200) {
+//
+//            ChecksApplication.log.info(response.toString());
+//            return new BaseResponse(response.getBody());
+//
+//        } else if (response.getStatusCode().value() == 406) {
+//
+//            ChecksApplication.log.info(response.toString());
+//            return new BaseResponse(response.getStatusCode());
+//
+//        } else if (response.getStatusCode().value() == 400) {
+//
+//            ChecksApplication.log.info(response.toString());
+//            return new BaseResponse(response.getStatusCode());
+//
+//        }
 
 
         ChecksApplication.log.info(response.toString());
-        return new BaseResponse("Something gone wrong!");
+        return new BaseResponse(response.code());
     }
 
 }
