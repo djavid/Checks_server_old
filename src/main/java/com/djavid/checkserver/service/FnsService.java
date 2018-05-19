@@ -44,11 +44,25 @@ public class FnsService {
                 .blockingGet();
 
         if (response.getStatusCode().value() == 202) {
+
             ChecksApplication.log.info(response.toString());
-            return new BaseResponse("accepted");
+            return new BaseResponse(response.getStatusCode());
+
         } else if (response.getStatusCode().value() == 200) {
+
             ChecksApplication.log.info(response.toString());
             return new BaseResponse(response.getBody());
+
+        } else if (response.getStatusCode().value() == 406) {
+
+            ChecksApplication.log.info(response.toString());
+            return new BaseResponse(response.getStatusCode());
+
+        } else if (response.getStatusCode().value() == 400) {
+
+            ChecksApplication.log.info(response.toString());
+            return new BaseResponse(response.getStatusCode());
+
         }
 
         ChecksApplication.log.info(response.toString());
