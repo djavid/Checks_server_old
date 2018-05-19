@@ -25,7 +25,7 @@ public class FnsService {
 //                    .doOnError(Throwable::printStackTrace)
 //                    .blockingGet().getDocument().getReceipt());
 
-        final ResponseEntity response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+        ResponseEntity response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
                 .doOnError(throwable -> {
                     if (throwable instanceof HttpException) {
                         HttpException error = (HttpException) throwable;
@@ -39,9 +39,24 @@ public class FnsService {
                         }
                     }
                 })
-                .onErrorReturn(throwable ->
-                        new ResponseEntity(HttpStatus.resolve(((HttpException) throwable).code())))
+                .onErrorReturn(throwable -> {
+                    if (throwable instanceof HttpException) {
+
+                        return new ResponseEntity(HttpStatus.resolve(((HttpException) throwable).code()));
+
+                    }
+//                    else if (throwable instanceof IOException) {
+//
+//                    } else if (throwable instanceof EOFException) {
+//
+//                    }
+
+                    System.out.println(throwable.getMessage());
+                    return null;
+                })
                 .blockingGet();
+
+        if (response == null) return new BaseResponse("Something gone wrong!");
 
         if (response.getStatusCode().value() == 202) {
 
@@ -64,6 +79,7 @@ public class FnsService {
             return new BaseResponse(response.getStatusCode());
 
         }
+
 
         ChecksApplication.log.info(response.toString());
         return new BaseResponse("Something gone wrong!");
