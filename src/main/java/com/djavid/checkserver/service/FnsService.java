@@ -36,7 +36,7 @@ public class FnsService {
                 .doOnError(throwable -> {
                     //throwable.printStackTrace();
                 })
-                .onErrorReturn(throwable -> {
+                .doOnError(throwable -> {
                     deferredResult.setErrorResult(throwable);
 
                     if (throwable instanceof HttpException) {
@@ -45,15 +45,13 @@ public class FnsService {
                     else if (throwable instanceof IOException) {
                         System.out.println(throwable.getMessage());
                     }
-
-                    return null;
                 })
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
                     System.out.println(responseFns);
                 }, throwable -> {
                     deferredResult.setErrorResult(throwable);
-                    throwable.printStackTrace();
+                    //throwable.printStackTrace();
                 });
 
         compositeDisposable.add(disposable);
