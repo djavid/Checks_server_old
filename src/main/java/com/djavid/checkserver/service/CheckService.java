@@ -124,6 +124,9 @@ public class CheckService {
 
                     DeferredResult<BaseResponse> deferredResult = getReceipt(it.getFnsValues(), token);
                     System.out.println(deferredResult);
+                    System.out.println(deferredResult.hasResult());
+                    System.out.println(deferredResult.getResult() == null);
+                    System.out.println(((BaseResponse) deferredResult.getResult()).getError());
 
                     if (deferredResult.hasResult()) {
                         BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
