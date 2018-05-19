@@ -7,6 +7,7 @@ import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
 import com.djavid.checkserver.model.repository.FnsRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
@@ -19,6 +20,7 @@ import io.reactivex.disposables.Disposable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,10 +140,10 @@ public class ReceiptController {
 
 
     @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
-    public BaseResponse postReceiptString(//@RequestHeader("Token") String token,
-                                          @RequestParam String fiscalDriveNumber,
-                                          @RequestParam String fiscalDocumentNumber,
-                                          @RequestParam String fiscalSign) {
+    public DeferredResult<CheckResponseFns> postReceiptString(//@RequestHeader("Token") String token,
+                                            @RequestParam String fiscalDriveNumber,
+                                            @RequestParam String fiscalDocumentNumber,
+                                            @RequestParam String fiscalSign) {
 
         return fnsService.postReceiptString(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
 

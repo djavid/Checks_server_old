@@ -1,11 +1,11 @@
 package com.djavid.checkserver.service;
 
-import com.djavid.checkserver.ChecksApplication;
-import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.repository.FnsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.async.DeferredResult;
 
 @Service
 public class FnsService {
@@ -13,18 +13,31 @@ public class FnsService {
     @Autowired
     private FnsRepository fnsRepository;
 
-    public BaseResponse postReceiptString(@RequestParam String fiscalDriveNumber,
-                                          @RequestParam String fiscalDocumentNumber,
-                                          @RequestParam String fiscalSign) {
+    public DeferredResult<CheckResponseFns> postReceiptString(@RequestParam String fiscalDriveNumber,
+                                            @RequestParam String fiscalDocumentNumber,
+                                            @RequestParam String fiscalSign) {
 
 //            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
 //                    .doOnError(Throwable::printStackTrace)
 //                    .blockingGet().getDocument().getReceipt());
 
 
+        DeferredResult<CheckResponseFns> deferredResult = new DeferredResult<>();
 
 
-        okhttp3.Response response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+        final CheckResponseFns response;
+        fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+                .subscribe(responseFns -> {
+                    deferredResult.setResult(responseFns);
+                    System.out.println(responseFns);
+                }, throwable -> {
+                    deferredResult.setErrorResult(throwable);
+                    throwable.printStackTrace();
+                });
+
+        return deferredResult;
+
+
 //                .doOnError(throwable -> {
 //                    if (throwable instanceof HttpException) {
 //                        HttpException error = (HttpException) throwable;
@@ -53,12 +66,16 @@ public class FnsService {
 //                    System.out.println(throwable.getMessage());
 //                    return null;
 //                })
-                .blockingGet();
+//                .subscribe(responseFns -> {
+//                    response = responseFns;
+//                }, throwable -> {
+//
+//                });
 
-        if (response == null) return new BaseResponse("Something gone wrong!");
-
-        System.out.println(response.toString());
-        System.out.println(response.code());
+//        if (response == null) return new BaseResponse("Something gone wrong!");
+//
+//        System.out.println(response.toString());
+//        System.out.println(response.code());
 //        System.out.println(response.getStatusCodeValue());
 
 //        System.out.println(response.getStatusCodeValue());
@@ -86,8 +103,8 @@ public class FnsService {
 //        }
 
 
-        ChecksApplication.log.info(response.toString());
-        return new BaseResponse(response.code());
+//        ChecksApplication.log.info(response.toString());
+//        return new BaseResponse(response.code());
     }
 
 }

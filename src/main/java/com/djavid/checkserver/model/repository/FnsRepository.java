@@ -1,6 +1,7 @@
 package com.djavid.checkserver.model.repository;
 
 import com.djavid.checkserver.model.api.Api;
+import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import io.reactivex.Single;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +16,7 @@ public class FnsRepository {
         this.api = api;
     }
 
-    public Single<okhttp3.Response> getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
+    public Single<CheckResponseFns> getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
                                              String fiscalSign) {
         String os = "Android 7.0";
         String email = "no";
