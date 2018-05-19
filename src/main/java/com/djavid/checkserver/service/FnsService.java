@@ -2,16 +2,22 @@ package com.djavid.checkserver.service;
 
 import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.repository.FnsRepository;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.async.DeferredResult;
+import retrofit2.HttpException;
+
+import java.io.IOException;
 
 @Service
 public class FnsService {
 
     @Autowired
     private FnsRepository fnsRepository;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public DeferredResult<CheckResponseFns> postReceiptString(@RequestParam String fiscalDriveNumber,
                                             @RequestParam String fiscalDocumentNumber,
@@ -26,9 +32,21 @@ public class FnsService {
 
 
         final CheckResponseFns response;
-        fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+        Disposable disposable = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
                 .doOnError(throwable -> {
                     //throwable.printStackTrace();
+                })
+                .onErrorReturn(throwable -> {
+                    deferredResult.setErrorResult(throwable);
+
+                    if (throwable instanceof HttpException) {
+                        System.out.println(((HttpException) throwable).code());
+                    }
+                    else if (throwable instanceof IOException) {
+                        System.out.println(throwable.getMessage());
+                    }
+
+                    return null;
                 })
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
@@ -37,6 +55,8 @@ public class FnsService {
                     deferredResult.setErrorResult(throwable);
                     throwable.printStackTrace();
                 });
+
+        compositeDisposable.add(disposable);
 
         return deferredResult;
 
@@ -110,4 +130,9 @@ public class FnsService {
 //        return new BaseResponse(response.code());
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        compositeDisposable.dispose();
+    }
 }
