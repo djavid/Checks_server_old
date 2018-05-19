@@ -58,6 +58,9 @@ public class FnsService {
 
         if (response == null) return new BaseResponse("Something gone wrong!");
 
+        System.out.println(response.toString());
+        System.out.println(response.getStatusCodeValue());
+        System.out.println(response.getStatusCode());
         if (response.getStatusCode().value() == 202) {
 
             ChecksApplication.log.info(response.toString());
