@@ -28,7 +28,7 @@ public class FnsService {
         final CheckResponseFns response;
         fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
                 .doOnError(throwable -> {
-                    throwable.printStackTrace();
+                    //throwable.printStackTrace();
                 })
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
