@@ -113,6 +113,8 @@ public class CheckService {
 
     @Scheduled(fixedDelay = CHECK_UPDATE_DELAY)
     public void listenForCheckUpdates() {
+        ChecksApplication.log.info("listenForCheckUpdates()");
+
         Iterable<Receipt> iterable = receiptRepository.findAll();
         iterable.forEach(it -> {
             if (it.isEmpty()) {
@@ -126,12 +128,15 @@ public class CheckService {
                         BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
                         if (checkResponse.getError().equals("") && checkResponse.getResult() != null) {
                             //check successfully loaded
+                            ChecksApplication.log.info("Check successfully loaded " + it.toString());
+
                             Receipt receipt = ((CheckResponseFns) checkResponse.getResult()).getDocument().getReceipt();
 
                             receiptInteractor.saveReceipt(receipt, token);
                             receiptRepository.delete(it);
                         } else if (checkResponse.getResult() == null
                                 && checkResponse.getError().equals(ERROR_CHECK_NOT_FOUND)){
+                            ChecksApplication.log.info("Check not loaded and is being deleted " + it.toString());
                             receiptRepository.delete(it);
                         }
                     }
