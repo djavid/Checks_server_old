@@ -7,6 +7,7 @@ import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
 import com.djavid.checkserver.model.repository.CheckRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
@@ -161,7 +162,7 @@ public class ReceiptController {
         fnsResult.setResultHandler(result -> {
             try {
                 //save receipt to db
-                Receipt receipt = (Receipt)((BaseResponse) result).getResult();
+                Receipt receipt = ((CheckResponseFns)((BaseResponse) result).getResult()).getDocument().getReceipt();
                 receipt = checkService.saveReceipt(receipt, registrationToken);
 
                 //async get from server categories and save them to db
