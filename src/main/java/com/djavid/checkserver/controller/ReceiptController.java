@@ -7,13 +7,12 @@ import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
-import com.djavid.checkserver.model.repository.FnsRepository;
+import com.djavid.checkserver.model.repository.CheckRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
-import com.djavid.checkserver.service.FnsService;
+import com.djavid.checkserver.service.CheckService;
 import com.djavid.checkserver.util.LogoUtil;
 import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.disposables.Disposable;
@@ -36,20 +35,20 @@ public class ReceiptController {
     private final ReceiptRepository receiptRepository;
     private final ItemRepository itemRepository;
     private final RegistrationTokenRepository tokenRepository;
-    private final FnsRepository fnsRepository;
+    private final CheckRepository checkRepository;
     private final Api api;
     private Disposable disposable;
 
     @Autowired
-    private FnsService fnsService;
+    private CheckService checkService;
 
 
     public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
-                             RegistrationTokenRepository tokenRepository, Api api, FnsRepository fnsRepository) {
+                             RegistrationTokenRepository tokenRepository, Api api, CheckRepository checkRepository) {
         this.receiptRepository = receiptRepository;
         this.itemRepository = itemRepository;
         this.tokenRepository = tokenRepository;
-        this.fnsRepository = fnsRepository;
+        this.checkRepository = checkRepository;
         this.api = api;
     }
 
@@ -113,9 +112,10 @@ public class ReceiptController {
             ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
 
             List<Item> items = res.getItems();
+
+
             List<String> values = new ArrayList<>();
             items.forEach(it -> values.add(it.getName()));
-
             disposable = api.getCategories(new FlaskValues(values))
                     .observeOn(io())
                     .subscribeOn(newThread())
@@ -140,25 +140,41 @@ public class ReceiptController {
 
 
     @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
-    public DeferredResult<CheckResponseFns> postReceiptString(//@RequestHeader("Token") String token,
+    public DeferredResult<BaseResponse> postReceiptString(
+                                            @RequestHeader("Token") String token,
                                             @RequestParam String fiscalDriveNumber,
                                             @RequestParam String fiscalDocumentNumber,
                                             @RequestParam String fiscalSign) {
 
-        return fnsService.postReceiptString(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+        RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+        if (registrationToken == null) {
+            DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
+            deferredResult.setErrorResult(new BaseResponse("Token is incorrect"));
+            return deferredResult;
+        }
 
-//        try {
-//            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-//                    .doOnError(Throwable::printStackTrace)
-//                    .blockingGet().getDocument().getReceipt());
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return new BaseResponse("Something gone wrong");
-//        }
+        //load check from fns
+        DeferredResult<BaseResponse> fnsResult = checkService
+                .getCheckFromFns(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+
+        //handle check result
+        fnsResult.setResultHandler(result -> {
+            try {
+                //save receipt to db
+                Receipt receipt = (Receipt) result;
+                receipt = checkService.saveReceipt(receipt, registrationToken);
+
+                //async get from server categories and save them to db
+                List<Item> items = receipt.getItems();
+                checkService.getAndSaveCategories(items);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        return fnsResult;
     }
-
-
 
     @Override
     protected void finalize() throws Throwable {

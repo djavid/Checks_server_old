@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class ChecksApplication {
 
-	public static final Logger log = LoggerFactory.getLogger("checks");
+	public static final Logger log = LoggerFactory.getLogger("djavid");
 
 	public static void main(String[] args) {
 		SpringApplication.run(ChecksApplication.class, args);
