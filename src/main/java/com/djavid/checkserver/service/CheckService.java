@@ -9,6 +9,7 @@ import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.repository.CheckRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
+import com.djavid.checkserver.util.DateUtil;
 import com.djavid.checkserver.util.LogoUtil;
 import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.Flowable;
@@ -67,7 +68,7 @@ public class CheckService {
                             if (throwable instanceof HttpException) {
                                 HttpException httpException = (HttpException) throwable;
                                 DateTime currentDate = new DateTime();
-                                DateTime checkDate = DateTime.parse(date);
+                                DateTime checkDate = DateUtil.parseDate(date);
 
                                 if (httpException.code() == 406) {
 

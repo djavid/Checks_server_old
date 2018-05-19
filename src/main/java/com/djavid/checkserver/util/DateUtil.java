@@ -4,6 +4,8 @@ import com.djavid.checkserver.model.entity.Receipt;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DateUtil {
 
@@ -50,6 +52,22 @@ public class DateUtil {
         }
 
         return total;
+    }
+
+    public static DateTime parseDate(String s) {
+
+        Pattern pattern = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})(\\d{2})*");
+        Matcher matcher = pattern.matcher(s);
+
+        String formatted = matcher.group(1) + "-" + matcher.group(2) + "-" + matcher.group(3) + "T" +
+                matcher.group(4) + ":" + matcher.group(5);
+        if (matcher.groupCount() == 7)
+            formatted += ":" + matcher.group(6);
+
+        System.out.println(s);
+        System.out.println(formatted);
+
+        return DateTime.parse(formatted);
     }
 
 }
