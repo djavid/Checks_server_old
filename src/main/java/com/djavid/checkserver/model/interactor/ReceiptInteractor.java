@@ -43,14 +43,23 @@ public class ReceiptInteractor {
         receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
         receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
 
-        ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
+        ChecksApplication.log.info("Saved receipt with token id " + receipt.getTokenId());
 
         return receiptRepository.save(receipt);
     }
 
-    public void saveEmptyReceipt(FnsValues fnsValues) {
+    public void saveEmptyReceipt(FnsValues fnsValues, RegistrationToken token) {
         Receipt receipt = new Receipt(fnsValues);
+        receipt.setTokenId(token.getId());
+        receipt.setCreated(System.currentTimeMillis());
+
+        ChecksApplication.log.info("Saved empty receipt with token id " + receipt.getTokenId());
+
         receiptRepository.save(receipt);
+    }
+
+    public void deleteReceipt(Receipt receipt) {
+        receiptRepository.delete(receipt);
     }
 
 }

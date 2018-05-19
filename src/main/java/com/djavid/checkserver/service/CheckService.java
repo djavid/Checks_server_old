@@ -1,9 +1,14 @@
 package com.djavid.checkserver.service;
 
 import com.djavid.checkserver.ChecksApplication;
+import com.djavid.checkserver.model.entity.Receipt;
+import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
+import com.djavid.checkserver.model.repository.ReceiptRepository;
+import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import com.djavid.checkserver.util.DateUtil;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,6 +32,10 @@ public class CheckService {
 
     @Autowired
     private ReceiptInteractor receiptInteractor;
+    @Autowired
+    ReceiptRepository receiptRepository;
+    @Autowired
+    RegistrationTokenRepository tokenRepository;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -37,7 +46,7 @@ public class CheckService {
     }
 
 
-    public DeferredResult<BaseResponse> getReceipt(FnsValues fnsValues) {
+    public DeferredResult<BaseResponse> getReceipt(FnsValues fnsValues, RegistrationToken token) {
 
         DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
 
@@ -47,7 +56,7 @@ public class CheckService {
                         throwable -> {
                             ChecksApplication.log.error(throwable.getMessage());
 
-                            errorHandler(throwable, deferredResult, fnsValues);
+                            errorHandler(throwable, deferredResult, fnsValues, token);
                         });
 
         compositeDisposable.add(disposable);
@@ -69,7 +78,8 @@ public class CheckService {
                 .delay(CHECK_FNS_POLLING_DELAY_SECONDS, TimeUnit.SECONDS)
                 .zipWith(Flowable.range(1, CHECK_FNS_POLLING_COUNT), (n, i) -> i);
 
-    private void errorHandler(Throwable throwable, DeferredResult<BaseResponse> deferredResult, FnsValues fnsValues) {
+    private void errorHandler(Throwable throwable, DeferredResult<BaseResponse> deferredResult, FnsValues fnsValues,
+                              RegistrationToken token) {
 
         if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
@@ -84,7 +94,10 @@ public class CheckService {
 
                         //сохраняем его в бд, чтобы получить потом
                         fnsValues.date = checkDate.toString();
-                        receiptInteractor.saveEmptyReceipt(fnsValues);
+                        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmpty(
+                                fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber,
+                                fnsValues.fiscalSign, true))
+                            receiptInteractor.saveEmptyReceipt(fnsValues, token);
                     } else
                         //чек устарел
                         deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_NOT_FOUND));
@@ -99,6 +112,34 @@ public class CheckService {
 
     @Scheduled(fixedDelay = CHECK_UPDATE_DELAY)
     public void listenForCheckUpdates() {
+        Iterable<Receipt> iterable = receiptRepository.findAll();
+        iterable.forEach(it -> {
+            if (it.isEmpty()) {
+                try {
+                    RegistrationToken token = tokenRepository.findRegistrationTokenById(it.getTokenId());
+                    if (token == null) return;
 
+                    DeferredResult<BaseResponse> deferredResult = getReceipt(it.getFnsValues(), token);
+
+                    if (deferredResult.hasResult()) {
+                        BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
+                        if (checkResponse.getError().equals("") && checkResponse.getResult() != null) {
+                            //check successfully loaded
+                            Receipt receipt = ((CheckResponseFns) checkResponse.getResult()).getDocument().getReceipt();
+
+                            receiptInteractor.saveReceipt(receipt, token);
+                            receiptRepository.delete(it);
+                        } else if (checkResponse.getResult() == null
+                                && checkResponse.getError().equals(ERROR_CHECK_NOT_FOUND)){
+                            receiptRepository.delete(it);
+                        }
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

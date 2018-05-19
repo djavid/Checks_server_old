@@ -7,7 +7,7 @@ public class Config {
     private static final String FNS_USERNAME = "+79639666964";
     private static final String FNS_PASSWORD = "732278";
 
-    public static final long CHECK_UPDATE_DELAY = 1000;
+    public static final long CHECK_UPDATE_DELAY = 1000000;
     public static final int CHECK_EXPIRE_HOURS = 25;
     public static final long CHECK_FNS_POLLING_DELAY_SECONDS = 1;
     public static final int CHECK_FNS_POLLING_COUNT = 6;

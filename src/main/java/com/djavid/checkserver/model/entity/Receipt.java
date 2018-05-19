@@ -100,6 +100,10 @@ public class Receipt {
                 '}';
     }
 
+    public FnsValues getFnsValues() {
+        return new FnsValues(dateTime, totalSum.toString(), fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+    }
+
 
     public Long getReceiptId() {
         return receiptId;

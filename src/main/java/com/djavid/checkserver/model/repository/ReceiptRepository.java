@@ -12,6 +12,6 @@ public interface ReceiptRepository extends CrudRepository<Receipt, Long> {
     Receipt findReceiptByReceiptId(Long id);
     Receipt findReceiptByUser(String user);
     List<Receipt> findReceiptsByTokenId(Long tokenId);
-    boolean existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
-            (String fiscalDriveNumber, String fiscalDocumentNumber, String fiscalSign);
+    boolean existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmpty
+            (String fiscalDriveNumber, String fiscalDocumentNumber, String fiscalSign, boolean empty);
 }
