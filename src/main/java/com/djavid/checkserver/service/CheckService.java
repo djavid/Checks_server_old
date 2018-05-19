@@ -142,6 +142,8 @@ public class CheckService {
 
         ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
 
+
+
         return receiptRepository.save(receipt);
     }
 

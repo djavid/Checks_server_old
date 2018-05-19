@@ -165,11 +165,19 @@ public class ReceiptController {
             try {
                 //save receipt to db
                 Receipt receipt = ((CheckResponseFns)((BaseResponse) result).getResult()).getDocument().getReceipt();
-                receipt = checkService.saveReceipt(receipt, registrationToken);
 
-                //async get from server categories and save them to db
-                List<Item> items = receipt.getItems();
-                checkService.getAndSaveCategories(items);
+                if (receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign(
+                        fiscalDriveNumber, fiscalDocumentNumber, fiscalSign
+                )) {
+                    ((BaseResponse) result).setResult(null);
+                    ((BaseResponse) result).setError("Check already exists.");
+                } else {
+                    receipt = checkService.saveReceipt(receipt, registrationToken);
+
+                    //async get from server categories and save them to db
+                    List<Item> items = receipt.getItems();
+                    checkService.getAndSaveCategories(items);
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
