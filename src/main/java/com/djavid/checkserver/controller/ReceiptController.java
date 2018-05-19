@@ -161,7 +161,7 @@ public class ReceiptController {
         fnsResult.setResultHandler(result -> {
             try {
                 //save receipt to db
-                Receipt receipt = (Receipt) result;
+                Receipt receipt = (Receipt)((BaseResponse) result).getResult();
                 receipt = checkService.saveReceipt(receipt, registrationToken);
 
                 //async get from server categories and save them to db
