@@ -157,27 +157,29 @@ public class ReceiptController {
         }
 
         //load check from fns
-        DeferredResult<BaseResponse> fnsResult = checkService
-                .getCheckFromFns(date, sum, fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+
+        DeferredResult<BaseResponse> fnsResult = new DeferredResult<>();
+        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign(
+                fiscalDriveNumber, fiscalDocumentNumber, fiscalSign
+        )) {
+            fnsResult = checkService
+                    .getCheckFromFns(date, sum, fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+        } else {
+            fnsResult.setErrorResult(new BaseResponse("Check already exists."));
+            return fnsResult;
+        }
 
         //handle check result
         fnsResult.setResultHandler(result -> {
             try {
                 //save receipt to db
-                Receipt receipt = ((CheckResponseFns)((BaseResponse) result).getResult()).getDocument().getReceipt();
+                CheckResponseFns checkResponse = (CheckResponseFns) ((BaseResponse) result).getResult();
+                Receipt receipt = checkResponse.getDocument().getReceipt();
+                receipt = checkService.saveReceipt(receipt, registrationToken);
 
-                if (receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign(
-                        fiscalDriveNumber, fiscalDocumentNumber, fiscalSign
-                )) {
-                    ((BaseResponse) result).setResult(null);
-                    ((BaseResponse) result).setError("Check already exists.");
-                } else {
-                    receipt = checkService.saveReceipt(receipt, registrationToken);
-
-                    //async get from server categories and save them to db
-                    List<Item> items = receipt.getItems();
-                    checkService.getAndSaveCategories(items);
-                }
+                //async get from server categories and save them to db
+                List<Item> items = receipt.getItems();
+                checkService.getAndSaveCategories(items);
 
             } catch (Exception e) {
                 e.printStackTrace();
