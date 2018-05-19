@@ -1,15 +1,17 @@
 package com.djavid.checkserver.controller;
 
 import com.djavid.checkserver.ChecksApplication;
-import com.djavid.checkserver.model.api.Api;
+import com.djavid.checkserver.model.Api;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
+import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
-import com.djavid.checkserver.model.repository.CheckRepository;
+import com.djavid.checkserver.model.interactor.CategoryInteractor;
+import com.djavid.checkserver.model.interactor.ReceiptInteractor;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
@@ -21,10 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
+import retrofit2.http.Body;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.djavid.checkserver.util.Config.*;
 import static io.reactivex.schedulers.Schedulers.io;
 import static io.reactivex.schedulers.Schedulers.newThread;
 
@@ -36,20 +40,22 @@ public class ReceiptController {
     private final ReceiptRepository receiptRepository;
     private final ItemRepository itemRepository;
     private final RegistrationTokenRepository tokenRepository;
-    private final CheckRepository checkRepository;
+    private final ReceiptInteractor receiptInteractor;
     private final Api api;
     private Disposable disposable;
 
     @Autowired
     private CheckService checkService;
+    @Autowired
+    private CategoryInteractor categoryInteractor;
 
 
     public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
-                             RegistrationTokenRepository tokenRepository, Api api, CheckRepository checkRepository) {
+                             RegistrationTokenRepository tokenRepository, Api api, ReceiptInteractor receiptInteractor) {
         this.receiptRepository = receiptRepository;
         this.itemRepository = itemRepository;
         this.tokenRepository = tokenRepository;
-        this.checkRepository = checkRepository;
+        this.receiptInteractor = receiptInteractor;
         this.api = api;
     }
 
@@ -135,37 +141,32 @@ public class ReceiptController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new BaseResponse("Something gone wrong");
+            return new BaseResponse(ERROR_SHIT_HAPPENS);
         }
     }
 
 
     @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
-    public DeferredResult<BaseResponse> postReceiptString(
-                                            @RequestParam String date,
-                                            @RequestParam String sum,
-                                            @RequestHeader("Token") String token,
-                                            @RequestParam String fiscalDriveNumber,
-                                            @RequestParam String fiscalDocumentNumber,
-                                            @RequestParam String fiscalSign) {
+    public DeferredResult<BaseResponse> postReceiptString(@RequestHeader("Token") String token,
+                                                          @Body FnsValues fnsValues) {
 
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null) {
             DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
-            deferredResult.setErrorResult(new BaseResponse("Token is incorrect"));
+            deferredResult.setErrorResult(new BaseResponse(ERROR_TOKEN_INCORRECT));
             return deferredResult;
         }
-
-        //load check from fns
+        registrationToken.setLastVisited(System.currentTimeMillis());
+        tokenRepository.save(registrationToken);
 
         DeferredResult<BaseResponse> fnsResult = new DeferredResult<>();
+
+        //load check from fns
         if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign(
-                fiscalDriveNumber, fiscalDocumentNumber, fiscalSign
-        )) {
-            fnsResult = checkService
-                    .getCheckFromFns(date, sum, fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+                fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign)) {
+            fnsResult = checkService.getReceipt(fnsValues);
         } else {
-            fnsResult.setErrorResult(new BaseResponse("Check already exists."));
+            fnsResult.setErrorResult(new BaseResponse(ERROR_CHECK_EXISTS));
             return fnsResult;
         }
 
@@ -175,11 +176,11 @@ public class ReceiptController {
                 //save receipt to db
                 CheckResponseFns checkResponse = (CheckResponseFns) ((BaseResponse) result).getResult();
                 Receipt receipt = checkResponse.getDocument().getReceipt();
-                receipt = checkService.saveReceipt(receipt, registrationToken);
+                receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
 
                 //async get from server categories and save them to db
                 List<Item> items = receipt.getItems();
-                checkService.getAndSaveCategories(items);
+                categoryInteractor.getAndSaveCategories(items);
 
             } catch (Exception e) {
                 e.printStackTrace();

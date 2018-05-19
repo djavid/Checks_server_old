@@ -1,4 +1,4 @@
-package com.djavid.checkserver.model.api;
+package com.djavid.checkserver.model;
 
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.response.CheckResponseFns;

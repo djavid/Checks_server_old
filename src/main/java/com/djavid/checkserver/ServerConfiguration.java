@@ -1,6 +1,6 @@
 package com.djavid.checkserver;
 
-import com.djavid.checkserver.model.api.Api;
+import com.djavid.checkserver.model.Api;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.context.annotation.Bean;

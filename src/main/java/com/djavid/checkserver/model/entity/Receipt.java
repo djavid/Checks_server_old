@@ -1,5 +1,7 @@
 package com.djavid.checkserver.model.entity;
 
+import com.djavid.checkserver.model.entity.query.FnsValues;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,27 +44,26 @@ public class Receipt {
 
     public Receipt() { }
 
-    public Receipt(boolean isEmpty, String date, String sum, String fiscalDriveNumber,
-                   String fiscalDocumentNumber, String fiscalSign) {
+    public Receipt(FnsValues fnsValues) {
 
-        this.isEmpty = isEmpty;
-        this.dateTime = date;
-        this.fiscalDriveNumber = fiscalDriveNumber;
+        this.isEmpty = true;
+        this.dateTime = fnsValues.date;
+        this.fiscalDriveNumber = fnsValues.fiscalDriveNumber;
 
         try {
-            this.totalSum = Long.parseLong(sum.replace(".", ""));
+            this.totalSum = Long.parseLong(fnsValues.sum.replace(".", ""));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            this.fiscalDocumentNumber = fiscalDocumentNumber;
+            this.fiscalDocumentNumber = fnsValues.fiscalDocumentNumber;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            this.fiscalSign = fiscalSign;
+            this.fiscalSign = fnsValues.fiscalSign;
         } catch (Exception e) {
             e.printStackTrace();
         }
