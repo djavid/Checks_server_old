@@ -94,7 +94,7 @@ public class CheckService {
 
                         //сохраняем его в бд, чтобы получить потом
                         fnsValues.date = checkDate.toString();
-                        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmptyIs(
+                        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmpty(
                                 fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber,
                                 fnsValues.fiscalSign, true))
                             receiptInteractor.saveEmptyReceipt(fnsValues, token);

@@ -162,7 +162,7 @@ public class ReceiptController {
         DeferredResult<BaseResponse> fnsResult = new DeferredResult<>();
 
         //load check from fns
-        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmptyIs(
+        if (!receiptRepository.existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndEmpty(
                 fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign, false)) {
             fnsResult = checkService.getReceipt(fnsValues, registrationToken);
         } else {
