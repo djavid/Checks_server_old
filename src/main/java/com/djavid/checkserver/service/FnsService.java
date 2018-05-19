@@ -8,6 +8,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,7 +37,7 @@ public class FnsService {
         deferredResult.setResultHandler(new DeferredResult.DeferredResultHandler() {
             @Override
             public void handleResult(Object result) {
-
+                System.out.println("deferred resultHandler");
             }
         });
 
@@ -47,13 +48,20 @@ public class FnsService {
                         return throwableFlowable.flatMap(new Function<Throwable, Publisher<?>>() {
                             @Override
                             public Publisher<?> apply(Throwable throwable) {
-                                if (throwable instanceof EOFException) {
-                                    System.out.println("Retrying because 202 Accepted");
-                                    return null;
-                                } else {
-                                    System.out.println("Not retrying because " + throwable.getMessage());
-                                    return throwableFlowable;
-                                }
+                                return new Publisher<Object>() {
+                                    @Override
+                                    public void subscribe(Subscriber<? super Object> subscriber) {
+
+                                        if (throwable instanceof EOFException) {
+                                            System.out.println("Retrying because 202 Accepted");
+                                            subscriber.onNext(2);
+                                        } else {
+                                            System.out.println("Not retrying because " + throwable.getMessage());
+                                            subscriber.onError(throwable);
+                                        }
+
+                                    }
+                                };
                             }
                         });
                     }
