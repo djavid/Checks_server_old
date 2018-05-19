@@ -66,6 +66,9 @@ public class CheckService {
                                 HttpException httpException = (HttpException) throwable;
                                 deferredResult.setErrorResult(
                                         new BaseResponse(httpException.code() + " " + httpException.message()));
+
+                                System.out.println(httpException.response().message());
+                                System.out.println(httpException.response().body());
                             } else {
                                 deferredResult.setErrorResult(new BaseResponse(throwable.getMessage()));
                             }
