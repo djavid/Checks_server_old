@@ -72,21 +72,28 @@ public class CheckService {
 
                                 if (httpException.code() == 406) {
 
-                                    if (checkDate.isAfter(currentDate.minusHours(25))) {
-                                        //чек напечатан в последние 25 часов и пока не поступил в налоговую
-                                        deferredResult.setErrorResult(
-                                                new BaseResponse("Check has not loaded yet."));
+                                    if (checkDate != null) {
 
-                                        //сохраняем его в бд, чтобы получить потом
-                                        Receipt receipt = new Receipt(true, date, sum,
-                                                fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
-                                        receiptRepository.save(receipt);
-                                    }
+                                        if (checkDate.isAfter(currentDate.minusHours(25))) {
+                                            //чек напечатан в последние 25 часов и пока не поступил в налоговую
+                                            deferredResult.setErrorResult(
+                                                    new BaseResponse("Check has not loaded yet."));
 
-                                    if (checkDate.isBefore(currentDate.minusHours(25))) {
-                                        //чек устарел
+                                            //сохраняем его в бд, чтобы получить потом
+                                            Receipt receipt = new Receipt(true, date, sum,
+                                                    fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+                                            receiptRepository.save(receipt);
+                                        }
+
+                                        if (checkDate.isBefore(currentDate.minusHours(25))) {
+                                            //чек устарел
+                                            deferredResult.setErrorResult(
+                                                    new BaseResponse("Check is outdated."));
+                                        }
+
+                                    } else {
                                         deferredResult.setErrorResult(
-                                                new BaseResponse("Check is outdated."));
+                                                new BaseResponse("Check date is corrupted."));
                                     }
 
                                 } else {

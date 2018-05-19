@@ -2,6 +2,7 @@ package com.djavid.checkserver.util;
 
 import com.djavid.checkserver.model.entity.Receipt;
 import org.joda.time.DateTime;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -54,20 +55,25 @@ public class DateUtil {
         return total;
     }
 
+    @Nullable
     public static DateTime parseDate(String s) {
 
-        Pattern pattern = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})(\\d{2})*");
+        Pattern pattern = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})(\\d{2})?");
         Matcher matcher = pattern.matcher(s);
 
-        String formatted = matcher.group(1) + "-" + matcher.group(2) + "-" + matcher.group(3) + "T" +
-                matcher.group(4) + ":" + matcher.group(5);
-        if (matcher.groupCount() == 7)
-            formatted += ":" + matcher.group(6);
+        String formatted = s;
+        if (matcher.matches()) {
+            formatted = matcher.group(1) + "-" + matcher.group(2) + "-" + matcher.group(3) + "T" +
+                    matcher.group(4) + ":" + matcher.group(5);
+            if (matcher.group(6) != null)
+                formatted += ":" + matcher.group(6);
+        }
 
-        System.out.println(s);
-        System.out.println(formatted);
-
-        return DateTime.parse(formatted);
+        try {
+            return DateTime.parse(formatted);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
