@@ -123,6 +123,7 @@ public class CheckService {
                     if (token == null) return;
 
                     DeferredResult<BaseResponse> deferredResult = getReceipt(it.getFnsValues(), token);
+                    System.out.println(deferredResult);
 
                     if (deferredResult.hasResult()) {
                         BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
