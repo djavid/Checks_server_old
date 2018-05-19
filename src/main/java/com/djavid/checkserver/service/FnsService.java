@@ -6,14 +6,12 @@ import com.djavid.checkserver.model.repository.FnsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
-import retrofit2.Response;
 
 @Service
 public class FnsService {
 
     @Autowired
     private FnsRepository fnsRepository;
-
 
     public BaseResponse postReceiptString(@RequestParam String fiscalDriveNumber,
                                           @RequestParam String fiscalDocumentNumber,
@@ -23,7 +21,10 @@ public class FnsService {
 //                    .doOnError(Throwable::printStackTrace)
 //                    .blockingGet().getDocument().getReceipt());
 
-        Response response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+
+
+
+        okhttp3.Response response = fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
 //                .doOnError(throwable -> {
 //                    if (throwable instanceof HttpException) {
 //                        HttpException error = (HttpException) throwable;
@@ -52,12 +53,14 @@ public class FnsService {
 //                    System.out.println(throwable.getMessage());
 //                    return null;
 //                })
-//                .blockingGet();
+                .blockingGet();
 
         if (response == null) return new BaseResponse("Something gone wrong!");
 
         System.out.println(response.toString());
         System.out.println(response.code());
+//        System.out.println(response.getStatusCodeValue());
+
 //        System.out.println(response.getStatusCodeValue());
 //        System.out.println(response.getStatusCode());
 //        if (response.getStatusCode().value() == 202) {

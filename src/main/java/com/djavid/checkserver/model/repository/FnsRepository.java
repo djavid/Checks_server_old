@@ -1,8 +1,8 @@
 package com.djavid.checkserver.model.repository;
 
 import com.djavid.checkserver.model.api.Api;
+import io.reactivex.Single;
 import org.springframework.stereotype.Repository;
-import retrofit2.Response;
 
 import static com.djavid.checkserver.util.Config.getAuthToken;
 
@@ -15,8 +15,8 @@ public class FnsRepository {
         this.api = api;
     }
 
-    public Response getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
-                                     String fiscalSign) {
+    public Single<okhttp3.Response> getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
+                                             String fiscalSign) {
         String os = "Android 7.0";
         String email = "no";
 
