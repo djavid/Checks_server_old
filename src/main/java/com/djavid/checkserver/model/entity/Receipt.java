@@ -15,8 +15,10 @@ public class Receipt {
     private String logo;
     private boolean isEmpty;
 
-    private Long fiscalSign;
-    private Long fiscalDocumentNumber;
+    private String fiscalSign;
+    private String fiscalDocumentNumber;
+    private String fiscalDriveNumber;
+
     private Long ecashTotalSum;
     private Long taxationType;
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL)
@@ -31,7 +33,6 @@ public class Receipt {
     private Long requestNumber;
     private Long nds18;
     private Long operationType;
-    private String fiscalDriveNumber;
     private String dateTime;
     private Long totalSum;
     private String kktRegId;
@@ -55,13 +56,13 @@ public class Receipt {
         }
 
         try {
-            this.fiscalDocumentNumber = Long.parseLong(fiscalDocumentNumber);
+            this.fiscalDocumentNumber = fiscalDocumentNumber;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            this.fiscalSign = Long.parseLong(fiscalSign);
+            this.fiscalSign = fiscalSign;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,19 +108,19 @@ public class Receipt {
         this.receiptId = receiptId;
     }
 
-    public Long getFiscalSign() {
+    public String getFiscalSign() {
         return fiscalSign;
     }
 
-    public void setFiscalSign(Long fiscalSign) {
+    public void setFiscalSign(String fiscalSign) {
         this.fiscalSign = fiscalSign;
     }
 
-    public Long getFiscalDocumentNumber() {
+    public String getFiscalDocumentNumber() {
         return fiscalDocumentNumber;
     }
 
-    public void setFiscalDocumentNumber(Long fiscalDocumentNumber) {
+    public void setFiscalDocumentNumber(String fiscalDocumentNumber) {
         this.fiscalDocumentNumber = fiscalDocumentNumber;
     }
 

@@ -80,15 +80,20 @@ public class CheckService {
                                                     new BaseResponse("Check has not loaded yet."));
 
                                             //сохраняем его в бд, чтобы получить потом
-                                            Receipt receipt = new Receipt(true, date, sum,
-                                                    fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
-                                            receiptRepository.save(receipt);
+                                            if (!receiptRepository
+                                                    .existsByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign(
+                                                            fiscalDriveNumber, fiscalDocumentNumber, fiscalSign
+                                                    )) {
+                                                Receipt receipt = new Receipt(true, checkDate.toString(), sum,
+                                                        fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+                                                receiptRepository.save(receipt);
+                                            }
                                         }
 
                                         if (checkDate.isBefore(currentDate.minusHours(25))) {
                                             //чек устарел
                                             deferredResult.setErrorResult(
-                                                    new BaseResponse("Check is outdated."));
+                                                    new BaseResponse("Check not found."));
                                         }
 
                                     } else {
