@@ -48,9 +48,10 @@ public class FnsService {
                     deferredResult.setResult(responseFns);
                     System.out.println(responseFns);
                 }, throwable -> {
-                    deferredResult.setErrorResult(throwable);
+
 
                     if (throwable instanceof HttpException) {
+                        deferredResult.setErrorResult(((HttpException) throwable).code());
                         System.out.println(((HttpException) throwable).code());
                     } else if (throwable instanceof TimeoutException) {
                         System.out.println(throwable.getMessage());
