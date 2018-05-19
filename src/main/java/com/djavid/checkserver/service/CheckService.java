@@ -93,12 +93,13 @@ public class CheckService {
                         deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_NOT_LOADED));
 
                         //сохраняем его в бд, чтобы получить потом
-                        fnsValues.date = checkDate.toString();
                         Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
                                 (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
 
-                        if (existing == null)
+                        if (existing == null) {
+                            fnsValues.date = checkDate.toString();
                             receiptInteractor.saveEmptyReceipt(fnsValues, token);
+                        }
                     } else
                         //чек устарел
                         deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_NOT_FOUND));
@@ -123,27 +124,34 @@ public class CheckService {
                     if (token == null) return;
 
                     DeferredResult<BaseResponse> deferredResult = getReceipt(it.getFnsValues(), token);
-                    System.out.println(deferredResult);
-                    System.out.println(deferredResult.hasResult());
-                    System.out.println(deferredResult.getResult() == null);
-                    System.out.println(((BaseResponse) deferredResult.getResult()).getError());
 
-                    if (deferredResult.hasResult()) {
-                        BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
-                        if (checkResponse.getError().equals("") && checkResponse.getResult() != null) {
-                            //check successfully loaded
-                            ChecksApplication.log.info("Check successfully loaded " + it.toString());
+                    deferredResult.setResultHandler(result -> {
 
-                            Receipt receipt = ((CheckResponseFns) checkResponse.getResult()).getDocument().getReceipt();
+                        CheckResponseFns checkRespons = (CheckResponseFns) ((BaseResponse) result).getResult();
+                        Receipt receip = checkRespons.getDocument().getReceipt();
 
-                            receiptInteractor.saveReceipt(receipt, token);
-                            receiptRepository.delete(it);
-                        } else if (checkResponse.getResult() == null
-                                && checkResponse.getError().equals(ERROR_CHECK_NOT_FOUND)){
-                            ChecksApplication.log.info("Check not loaded and is being deleted " + it.toString());
-                            receiptRepository.delete(it);
+                        System.out.println(((BaseResponse) result).getError());
+                        System.out.println(checkRespons);
+                        System.out.println(receip);
+                        System.out.println(receip);
+
+                        if (deferredResult.hasResult()) {
+                            BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
+                            if (checkResponse.getError().equals("") && checkResponse.getResult() != null) {
+                                //check successfully loaded
+                                ChecksApplication.log.info("Check successfully loaded " + it.toString());
+
+                                Receipt receipt = ((CheckResponseFns) checkResponse.getResult()).getDocument().getReceipt();
+
+                                receiptInteractor.saveReceipt(receipt, token);
+                                receiptRepository.delete(it);
+                            } else if (checkResponse.getResult() == null
+                                    && checkResponse.getError().equals(ERROR_CHECK_NOT_FOUND)){
+                                ChecksApplication.log.info("Check not loaded and is being deleted " + it.toString());
+                                receiptRepository.delete(it);
+                            }
                         }
-                    }
+                    });
 
 
                 } catch (Exception e) {
