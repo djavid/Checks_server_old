@@ -52,8 +52,8 @@ public class FnsService {
                                     }
 
                                 })
-                                .delay(5, TimeUnit.SECONDS)
-                                .zipWith(Flowable.range(1, 2), (n, i) -> i)
+                                .delay(1, TimeUnit.SECONDS)
+                                .zipWith(Flowable.range(1, 5), (n, i) -> i)
                 )
                 .subscribe(responseFns -> {
                     deferredResult.setResult(responseFns);
