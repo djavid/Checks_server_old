@@ -3,6 +3,7 @@ package com.djavid.checkserver.model.repository;
 import com.djavid.checkserver.model.api.Api;
 import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import io.reactivex.Single;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import static com.djavid.checkserver.util.Config.getAuthToken;
@@ -18,8 +19,8 @@ public class FnsRepository {
         this.api = api;
     }
 
-    public Single<CheckResponseFns> getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
-                                             String fiscalSign) {
+    public Single<ResponseEntity<CheckResponseFns>> getCheck(String fiscalDriveNumber, String fiscalDocumentNumber,
+                                                            String fiscalSign) {
         String os = "Android 7.0";
         String email = "no";
 

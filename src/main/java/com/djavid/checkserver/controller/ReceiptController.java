@@ -12,7 +12,11 @@ import com.djavid.checkserver.model.repository.FnsRepository;
 import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
+import com.djavid.checkserver.service.FnsService;
+import com.djavid.checkserver.util.LogoUtil;
+import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.disposables.Disposable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +37,9 @@ public class ReceiptController {
     private final FnsRepository fnsRepository;
     private final Api api;
     private Disposable disposable;
+
+    @Autowired
+    private FnsService fnsService;
 
 
     public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
@@ -97,6 +104,8 @@ public class ReceiptController {
             receipt.setTokenId(registrationToken.getId());
             receipt.setCreated(System.currentTimeMillis());
             receipt.getItems().forEach(it -> it.setReceipt(receipt));
+            receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
+            receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
 
             Receipt res = receiptRepository.save(receipt);
             ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
@@ -108,7 +117,7 @@ public class ReceiptController {
             disposable = api.getCategories(new FlaskValues(values))
                     .observeOn(io())
                     .subscribeOn(newThread())
-                    .retry(2)
+                    .retry(3)
                     .subscribe(it -> {
 
                         for (int i = 0; i < items.size(); i++) {
@@ -129,19 +138,22 @@ public class ReceiptController {
 
 
     @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
-    public BaseResponse postReceiptString(@RequestHeader("Token") String token,
+    public BaseResponse postReceiptString(//@RequestHeader("Token") String token,
                                           @RequestParam String fiscalDriveNumber,
                                           @RequestParam String fiscalDocumentNumber,
                                           @RequestParam String fiscalSign) {
-        try {
-            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
-                    .doOnError(Throwable::printStackTrace)
-                    .blockingGet().getDocument().getReceipt());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new BaseResponse("Something gone wrong");
-        }
+        return fnsService.postReceiptString(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign);
+
+//        try {
+//            return new BaseResponse(fnsRepository.getCheck(fiscalDriveNumber, fiscalDocumentNumber, fiscalSign)
+//                    .doOnError(Throwable::printStackTrace)
+//                    .blockingGet().getDocument().getReceipt());
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new BaseResponse("Something gone wrong");
+//        }
     }
 
 

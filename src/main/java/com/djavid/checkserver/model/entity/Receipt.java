@@ -12,6 +12,7 @@ public class Receipt {
     private Long receiptId;
     private long tokenId;
     private long created;
+    private String logo;
 
     private Long fiscalSign;
     private Long fiscalDocumentNumber;
@@ -256,5 +257,13 @@ public class Receipt {
 
     public void setCreated(long created) {
         this.created = created;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 }
