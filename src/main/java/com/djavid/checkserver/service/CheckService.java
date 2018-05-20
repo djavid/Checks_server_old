@@ -126,13 +126,11 @@ public class CheckService {
 
                     deferredResult.setResultHandler(result -> {
 
-                        CheckResponseFns checkRespons = (CheckResponseFns) ((BaseResponse) result).getResult();
-                        Receipt receip = checkRespons.getDocument().getReceipt();
-
+                        System.out.println(result instanceof BaseResponse);
+                        System.out.println(result.getClass());
                         System.out.println(((BaseResponse) result).getError());
-                        System.out.println(checkRespons);
-                        System.out.println(receip);
-                        System.out.println(receip);
+                        System.out.println(((BaseResponse) result).getResult());
+
 
                         if (deferredResult.hasResult()) {
                             BaseResponse checkResponse = ((BaseResponse) deferredResult.getResult());
