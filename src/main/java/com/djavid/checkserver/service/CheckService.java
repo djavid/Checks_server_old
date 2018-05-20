@@ -17,6 +17,7 @@ import io.reactivex.functions.Function;
 import org.joda.time.DateTime;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 import retrofit2.HttpException;
@@ -111,7 +112,7 @@ public class CheckService {
             deferredResult.setErrorResult(new BaseResponse(throwable.getMessage()));
     }
 
-    //@Scheduled(fixedDelay = CHECK_UPDATE_DELAY)
+    @Scheduled(fixedDelay = CHECK_UPDATE_DELAY)
     public void listenForCheckUpdates() {
         ChecksApplication.log.info("listenForCheckUpdates()");
 
