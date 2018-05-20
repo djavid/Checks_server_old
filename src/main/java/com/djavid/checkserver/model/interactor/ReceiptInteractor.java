@@ -7,10 +7,13 @@ import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
+import com.djavid.checkserver.util.DateUtil;
 import com.djavid.checkserver.util.LogoUtil;
 import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.Single;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import static com.djavid.checkserver.util.Config.getAuthToken;
@@ -49,17 +52,37 @@ public class ReceiptInteractor {
     }
 
     public void saveEmptyReceipt(FnsValues fnsValues, RegistrationToken token) {
-        Receipt receipt = new Receipt(fnsValues);
-        receipt.setTokenId(token.getId());
-        receipt.setCreated(System.currentTimeMillis());
 
-        ChecksApplication.log.info("Saved empty receipt with token id " + receipt.getTokenId());
+        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
+                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
 
-        receiptRepository.save(receipt);
+        if (existing == null) {
+
+            DateTime parsedDateTime = DateUtil.parseDate(fnsValues.date);
+            if (parsedDateTime != null) {
+                fnsValues.date = parsedDateTime.toString();
+            } else {
+                ChecksApplication.log.error("Corrupted datetime!");
+                return;
+            }
+
+            Receipt receipt = new Receipt(fnsValues);
+            receipt.setTokenId(token.getId());
+            receipt.setCreated(System.currentTimeMillis());
+            receiptRepository.save(receipt);
+
+            ChecksApplication.log.info("Saved empty receipt with token id " + receipt.getTokenId());
+        }
     }
 
     public void deleteReceipt(Receipt receipt) {
         receiptRepository.delete(receipt);
+    }
+
+    @Nullable
+    public Receipt findByFnsValues(FnsValues fnsValues) {
+        return receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
+                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
     }
 
 }

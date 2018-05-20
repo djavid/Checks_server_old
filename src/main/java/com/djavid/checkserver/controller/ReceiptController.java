@@ -28,7 +28,8 @@ import retrofit2.http.Body;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.djavid.checkserver.util.Config.*;
+import static com.djavid.checkserver.util.Config.ERROR_SHIT_HAPPENS;
+import static com.djavid.checkserver.util.Config.ERROR_TOKEN_INCORRECT;
 import static io.reactivex.schedulers.Schedulers.io;
 import static io.reactivex.schedulers.Schedulers.newThread;
 
@@ -151,41 +152,42 @@ public class ReceiptController {
                                                           @Body FnsValues fnsValues) {
 
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
-        if (registrationToken == null) {
+        if (registrationToken != null) {
+            registrationToken.setLastVisited(System.currentTimeMillis());
+            tokenRepository.save(registrationToken);
+        } else {
             DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
             deferredResult.setErrorResult(new BaseResponse(ERROR_TOKEN_INCORRECT));
             return deferredResult;
         }
-        registrationToken.setLastVisited(System.currentTimeMillis());
-        tokenRepository.save(registrationToken);
-
-        DeferredResult<BaseResponse> fnsResult = new DeferredResult<>();
 
         //load check from fns
-        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
-                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
+        DeferredResult<BaseResponse> fnsResult = checkService.getReceipt(fnsValues, registrationToken);
 
-        if (existing == null || existing.isEmpty()) {
-            fnsResult = checkService.getReceipt(fnsValues, registrationToken);
-        } else {
-            fnsResult.setErrorResult(new BaseResponse(ERROR_CHECK_EXISTS));
-            return fnsResult;
-        }
-
-        //handle check result
         fnsResult.setResultHandler(result -> {
             try {
-                //save receipt to db
-                CheckResponseFns checkResponse = (CheckResponseFns) ((BaseResponse) result).getResult();
-                Receipt receipt = checkResponse.getDocument().getReceipt();
-                receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
+                if (result == null) return;
 
-                //async get from server categories and save them to db
-                List<Item> items = receipt.getItems();
-                categoryInteractor.getAndSaveCategories(items);
+                BaseResponse baseResponse = ((BaseResponse) result);
+
+                if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof CheckResponseFns) {
+
+                    //save receipt to db
+                    CheckResponseFns checkResponse = (CheckResponseFns) baseResponse.getResult();
+                    Receipt receipt = checkResponse.getDocument().getReceipt();
+                    receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
+
+                    //get categories from server and save them to db
+                    List<Item> items = receipt.getItems();
+                    categoryInteractor.getAndSaveCategories(items);
+
+                } else if (!baseResponse.getError().isEmpty()) {
+                    ChecksApplication.log.info(baseResponse.getError());
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
+                fnsResult.setErrorResult("Shit happens: " + e.getMessage());
             }
         });
 
