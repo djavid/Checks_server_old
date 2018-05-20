@@ -40,15 +40,23 @@ public class ReceiptInteractor {
 
     public Receipt saveReceipt(Receipt receipt, RegistrationToken token) {
 
-        receipt.setTokenId(token.getId());
-        receipt.setCreated(System.currentTimeMillis());
-        receipt.getItems().forEach(it -> it.setReceipt(receipt));
-        receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
-        receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
+        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
+                (receipt.getFiscalDriveNumber(), receipt.getFiscalDocumentNumber(), receipt.getFiscalSign());
 
-        ChecksApplication.log.info("Saved receipt with token id " + receipt.getTokenId());
+        if (existing == null) {
 
-        return receiptRepository.save(receipt);
+            receipt.setTokenId(token.getId());
+            receipt.setCreated(System.currentTimeMillis());
+            receipt.getItems().forEach(it -> it.setReceipt(receipt));
+            receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
+            receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
+
+            ChecksApplication.log.info("Saved receipt with token id " + receipt.getTokenId());
+
+            return receiptRepository.save(receipt);
+        }
+
+        return existing;
     }
 
     public void saveEmptyReceipt(FnsValues fnsValues, RegistrationToken token) {

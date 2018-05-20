@@ -170,6 +170,11 @@ public class ReceiptController {
 
                 BaseResponse baseResponse = ((BaseResponse) result);
 
+                System.out.println(baseResponse.getError());
+                System.out.println(baseResponse.getResult() instanceof CheckResponseFns);
+                System.out.println(baseResponse.getResult().getClass());
+                System.out.println(baseResponse.getResult());
+
                 if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof CheckResponseFns) {
 
                     //save receipt to db
