@@ -23,7 +23,7 @@ public class Receipt {
 
     private Long ecashTotalSum;
     private Long taxationType;
-    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Item> items = new ArrayList<>();
     private Long shiftNumber;
     @Column(name="`user`")
@@ -73,6 +73,7 @@ public class Receipt {
 
     @Override
     public String toString() {
+
         return "Receipt{" +
                 "receiptId=" + receiptId +
                 ", tokenId=" + tokenId +
