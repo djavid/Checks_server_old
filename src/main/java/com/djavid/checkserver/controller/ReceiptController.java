@@ -98,56 +98,56 @@ public class ReceiptController {
         return receiptRepository.findReceiptByReceiptId(id);
     }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteReceiptById(@RequestHeader("Token") String token, @PathVariable("id") long id) {
 
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public BaseResponse postReceipt(@RequestHeader("Token") String token, @RequestBody Receipt receipt) {
+        RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+        if (registrationToken == null)
+            return "Token is incorrect!";
 
         try {
-            if (receipt == null)
-                return  new BaseResponse("Sent null entity!");
+            Receipt foundReceipt = receiptRepository.findReceiptByReceiptId(id);
+            if (foundReceipt == null) return "No such entity!";
+            RegistrationToken foundToken = tokenRepository.findRegistrationTokenById(foundReceipt.getTokenId());
 
-            RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
-            if (registrationToken == null)
-                return new BaseResponse("Token is incorrect!");
-
-            receipt.setTokenId(registrationToken.getId());
-            receipt.setCreated(System.currentTimeMillis());
-            receipt.getItems().forEach(it -> it.setReceipt(receipt));
-            receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
-            receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
-
-            Receipt res = receiptRepository.save(receipt);
-            ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
-
-            List<Item> items = res.getItems();
-
-
-            List<String> values = new ArrayList<>();
-            items.forEach(it -> values.add(it.getName()));
-            disposable = api.getCategories(new FlaskValues(values))
-                    .observeOn(io())
-                    .subscribeOn(newThread())
-                    .retry(3)
-                    .subscribe(it -> {
-
-                        for (int i = 0; i < items.size(); i++) {
-                            items.get(i).setName(it.getNormalized().get(i));
-                            items.get(i).setCategory(it.getCategories().get(i));
-                            itemRepository.save(items.get(i));
-                        }
-
-                    }, Throwable::printStackTrace);
-
-            return new BaseResponse(res);
+            if (foundToken.getToken().equals(token)) {
+                receiptRepository.delete(foundReceipt);
+                return "OK";
+            } else {
+                return "Token is wrong!";
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return new BaseResponse(ERROR_SHIT_HAPPENS);
+            return e.getMessage();
         }
     }
 
 
-    @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(method = RequestMethod.DELETE)
+    public String deleteReceipt(@RequestHeader("Token") String token, @Body Receipt receipt) {
+
+        RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+        if (registrationToken == null)
+            return "Token is incorrect!";
+
+        try {
+            Receipt foundReceipt = receiptRepository.findReceiptByReceiptId(receipt.getReceiptId());
+            if (foundReceipt == null) return "No such entity!";
+            RegistrationToken foundToken = tokenRepository.findRegistrationTokenById(foundReceipt.getTokenId());
+
+            if (foundToken.getToken().equals(token)) {
+                receiptRepository.delete(receipt);
+                return "OK";
+            } else {
+                return "Token is wrong!";
+            }
+
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public DeferredResult<BaseResponse> postReceiptString(@RequestHeader("Token") String token,
                                                           @Body FnsValues fnsValues) {
 
@@ -198,5 +198,54 @@ public class ReceiptController {
     protected void finalize() throws Throwable {
         super.finalize();
         disposable.dispose();
+    }
+
+
+
+    @RequestMapping(value = "/post", method = RequestMethod.POST, produces = "application/json")
+    public BaseResponse postReceipt(@RequestHeader("Token") String token, @RequestBody Receipt receipt) {
+
+        try {
+            if (receipt == null)
+                return  new BaseResponse("Sent null entity!");
+
+            RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+            if (registrationToken == null)
+                return new BaseResponse("Token is incorrect!");
+
+            receipt.setTokenId(registrationToken.getId());
+            receipt.setCreated(System.currentTimeMillis());
+            receipt.getItems().forEach(it -> it.setReceipt(receipt));
+            receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
+            receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
+
+            Receipt res = receiptRepository.save(receipt);
+            ChecksApplication.log.info("Saved receipt with id " + receipt.getReceiptId());
+
+            List<Item> items = res.getItems();
+
+
+            List<String> values = new ArrayList<>();
+            items.forEach(it -> values.add(it.getName()));
+            disposable = api.getCategories(new FlaskValues(values))
+                    .observeOn(io())
+                    .subscribeOn(newThread())
+                    .retry(3)
+                    .subscribe(it -> {
+
+                        for (int i = 0; i < items.size(); i++) {
+                            items.get(i).setName(it.getNormalized().get(i));
+                            items.get(i).setCategory(it.getCategories().get(i));
+                            itemRepository.save(items.get(i));
+                        }
+
+                    }, Throwable::printStackTrace);
+
+            return new BaseResponse(res);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new BaseResponse(ERROR_SHIT_HAPPENS);
+        }
     }
 }
