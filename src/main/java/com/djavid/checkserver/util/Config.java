@@ -18,6 +18,8 @@ public class Config {
     public static final String ERROR_CHECK_DATE_CORRUPTED = "Check date is corrupted.";
 
     public static final String ERROR_TOKEN_INCORRECT = "Token is incorrect";
+    public static final String ERROR_TOKEN_EMPTY = "Token is empty";
+
     public static final String ERROR_SHIT_HAPPENS = "Something gone wrong";
 
 
