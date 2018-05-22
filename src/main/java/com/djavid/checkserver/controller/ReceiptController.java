@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
-import retrofit2.http.Body;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +123,7 @@ public class ReceiptController {
 
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public String deleteReceipt(@RequestHeader("Token") String token, @Body Receipt receipt) {
+    public String deleteReceipt(@RequestHeader("Token") String token, @RequestBody Receipt receipt) {
 
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
@@ -149,7 +148,7 @@ public class ReceiptController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     public DeferredResult<BaseResponse> postReceiptString(@RequestHeader("Token") String token,
-                                                          @Body FnsValues fnsValues) {
+                                                          @RequestBody FnsValues fnsValues) {
 
         System.out.println(fnsValues);
 
@@ -171,11 +170,6 @@ public class ReceiptController {
                 if (result == null) return;
 
                 BaseResponse baseResponse = ((BaseResponse) result);
-
-                System.out.println(baseResponse.getError());
-                System.out.println(baseResponse.getResult() instanceof CheckResponseFns);
-                System.out.println(baseResponse.getResult().getClass());
-                System.out.println(baseResponse.getResult());
 
                 if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof CheckResponseFns) {
 
