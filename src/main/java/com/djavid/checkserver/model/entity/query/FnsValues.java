@@ -18,6 +18,18 @@ public class FnsValues {
     }
 
 
+    @Override
+    public String toString() {
+        return "FnsValues{" +
+                "date='" + date + '\'' +
+                ", sum='" + sum + '\'' +
+                ", fiscalDriveNumber='" + fiscalDriveNumber + '\'' +
+                ", fiscalDocumentNumber='" + fiscalDocumentNumber + '\'' +
+                ", fiscalSign='" + fiscalSign + '\'' +
+                '}';
+    }
+
+
     public String getDate() {
         return date;
     }

@@ -151,6 +151,8 @@ public class ReceiptController {
     public DeferredResult<BaseResponse> postReceiptString(@RequestHeader("Token") String token,
                                                           @Body FnsValues fnsValues) {
 
+        System.out.println(fnsValues);
+
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken != null) {
             registrationToken.setLastVisited(System.currentTimeMillis());
