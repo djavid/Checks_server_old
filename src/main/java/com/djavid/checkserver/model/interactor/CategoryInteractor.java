@@ -34,7 +34,7 @@ public class CategoryInteractor {
     }
 
 
-    private Single<FlaskResponse> getCategories(FlaskValues values) {
+    public Single<FlaskResponse> getCategories(FlaskValues values) {
         return api.getCategories(values)
                 .observeOn(io())
                 .subscribeOn(newThread())

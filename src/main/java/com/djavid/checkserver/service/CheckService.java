@@ -4,10 +4,12 @@ import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
+import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
 import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
+import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import com.djavid.checkserver.util.DateUtil;
@@ -23,6 +25,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import retrofit2.HttpException;
 
 import java.io.EOFException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +42,8 @@ public class CheckService {
     RegistrationTokenRepository tokenRepository;
     @Autowired
     private CategoryInteractor categoryInteractor;
+    @Autowired
+    private ItemRepository itemRepository;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -60,14 +65,6 @@ public class CheckService {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
-//                    .doOnSuccess(checkResponseFns -> {
-//                        //save receipt to db
-//                        Receipt receipt = receiptInteractor.saveReceipt(checkResponseFns.getDocument().getReceipt(), token);
-//
-//                        //get categories from server and save them to db
-//                        List<Item> items = receipt.getItems();
-//                        categoryInteractor.getAndSaveCategories(items);
-//                    })
                     .subscribe(
                             responseFns -> {
                                 //save receipt to db
@@ -75,9 +72,20 @@ public class CheckService {
 
                                 //get categories from server and save them to db
                                 List<Item> items = receipt.getItems();
-                                categoryInteractor.getAndSaveCategories(items);
+                                List<String> values = new ArrayList<>();
+                                items.forEach(it -> values.add(it.getName()));
 
-                                deferredResult.setResult(new BaseResponse(receipt));
+                                categoryInteractor.getCategories(new FlaskValues(values))
+                                        .subscribe(it -> {
+                                            for (int i = 0; i < items.size(); i++) {
+                                                items.get(i).setName(it.getNormalized().get(i));
+                                                items.get(i).setCategory(it.getCategories().get(i));
+                                                itemRepository.save(items.get(i));
+                                            }
+
+                                            deferredResult.setResult(new BaseResponse(receipt));
+
+                                        }, Throwable::printStackTrace);
                             },
                             throwable -> {
                                 ChecksApplication.log.error(throwable.getMessage());
