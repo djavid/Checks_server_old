@@ -8,6 +8,7 @@ public class FnsValues {
     public String fiscalDocumentNumber;
     public String fiscalSign;
 
+    public FnsValues() { }
 
     public FnsValues(String date, String sum, String fiscalDriveNumber, String fiscalDocumentNumber, String fiscalSign) {
         this.date = date;
