@@ -56,8 +56,10 @@ public class CheckService {
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
                     .subscribe(
-                            responseFns ->
-                                    deferredResult.setResult(new BaseResponse(responseFns.getDocument().getReceipt())),
+                            responseFns -> {
+                                System.out.println("OK");
+                                deferredResult.setResult(new BaseResponse(responseFns.getDocument().getReceipt()));
+                            },
                             throwable -> {
                                 ChecksApplication.log.error(throwable.getMessage());
 
