@@ -164,6 +164,7 @@ public class ReceiptController {
 
         fnsResult.setResultHandler(result -> {
             try {
+                System.out.println(result);
                 if (result == null) return;
 
                 BaseResponse baseResponse = ((BaseResponse) result);
@@ -174,7 +175,6 @@ public class ReceiptController {
                 if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof Receipt) {
 
                     //save receipt to db
-
                     Receipt receipt = (Receipt) baseResponse.getResult();
                     receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
 
