@@ -51,7 +51,7 @@ public class CheckService {
         //check if exists the same
         Receipt existing = receiptInteractor.findByFnsValues(fnsValues);
 
-        if (existing == null || existing.isEmpty()) {
+        if (existing == null || existing.isEmpty() || existing.getTokenId() != token.getId()) {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
