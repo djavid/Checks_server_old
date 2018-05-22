@@ -40,8 +40,8 @@ public class ReceiptInteractor {
 
     public Receipt saveReceipt(Receipt receipt, RegistrationToken token) {
 
-        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
-                (receipt.getFiscalDriveNumber(), receipt.getFiscalDocumentNumber(), receipt.getFiscalSign());
+        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndTokenId
+                (receipt.getFiscalDriveNumber(), receipt.getFiscalDocumentNumber(), receipt.getFiscalSign(), token.getId());
 
         if (existing == null) {
 
@@ -61,8 +61,8 @@ public class ReceiptInteractor {
 
     public void saveEmptyReceipt(FnsValues fnsValues, RegistrationToken token) {
 
-        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
-                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
+        Receipt existing = receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndTokenId
+                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign, token.getId());
 
         if (existing == null) {
 
@@ -88,9 +88,9 @@ public class ReceiptInteractor {
     }
 
     @Nullable
-    public Receipt findByFnsValues(FnsValues fnsValues) {
-        return receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSign
-                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign);
+    public Receipt findByFnsValues(FnsValues fnsValues, long tokenId) {
+        return receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndTokenId
+                (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign, tokenId);
     }
 
 }

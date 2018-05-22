@@ -49,9 +49,9 @@ public class CheckService {
         DeferredResult<BaseResponse> deferredResult = new DeferredResult<>();
 
         //check if exists the same
-        Receipt existing = receiptInteractor.findByFnsValues(fnsValues);
+        Receipt existing = receiptInteractor.findByFnsValues(fnsValues, token.getId());
 
-        if (existing == null || existing.isEmpty() || existing.getTokenId() != token.getId()) {
+        if (existing == null || existing.isEmpty()) {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
