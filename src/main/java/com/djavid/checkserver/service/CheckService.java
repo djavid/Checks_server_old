@@ -61,7 +61,7 @@ public class CheckService {
         //check if exists the same
         Receipt existing = receiptInteractor.findByFnsValues(fnsValues, token.getId());
 
-        if (existing == null || existing.isEmpty()) {
+        if (existing == null) {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
@@ -96,6 +96,7 @@ public class CheckService {
 
         } else {
             deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_EXISTS));
+            ChecksApplication.log.error(ERROR_CHECK_EXISTS);
             return deferredResult;
         }
 
@@ -106,7 +107,7 @@ public class CheckService {
     private void errorHandler(Throwable throwable, DeferredResult<BaseResponse> deferredResult, FnsValues fnsValues,
                               RegistrationToken token) {
 
-        throwable.printStackTrace();
+        //throwable.printStackTrace();
 
         if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
@@ -117,6 +118,7 @@ public class CheckService {
                 DateTime checkDate = DateUtil.parseDate(fnsValues.date);
                 if (checkDate == null) {
                     deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_DATE_CORRUPTED));
+                    ChecksApplication.log.error(ERROR_CHECK_DATE_CORRUPTED);
                     return;
                 }
 
@@ -124,14 +126,22 @@ public class CheckService {
                     //чек напечатан в последние 25 часов и пока не поступил в налоговую,
                     //поэтому сохраняем его в бд, чтобы получить потом
                     deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_NOT_LOADED));
+                    ChecksApplication.log.error(ERROR_CHECK_NOT_LOADED);
                     receiptInteractor.saveEmptyReceipt(fnsValues, token);
-                } else
+                } else {
                     //чек устарел
                     deferredResult.setErrorResult(new BaseResponse(ERROR_CHECK_NOT_FOUND));
-            } else
+                    ChecksApplication.log.error(ERROR_CHECK_NOT_FOUND);
+                }
+            } else {
                 deferredResult.setErrorResult(new BaseResponse(httpException.code() + " " + httpException.message()));
-        } else
+                ChecksApplication.log.error(httpException.code() + " " + httpException.message());
+
+            }
+        } else {
             deferredResult.setErrorResult(new BaseResponse(throwable.getMessage()));
+            ChecksApplication.log.error(throwable.getMessage());
+        }
     }
 
 
