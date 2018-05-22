@@ -162,35 +162,35 @@ public class ReceiptController {
         //load check from fns
         DeferredResult<BaseResponse> fnsResult = checkService.getReceipt(fnsValues, registrationToken);
 
-        fnsResult.setResultHandler(result -> {
-            try {
-                System.out.println(result);
-                if (result == null) return;
-
-                BaseResponse baseResponse = ((BaseResponse) result);
-
-                System.out.println(baseResponse.getError().isEmpty());
-                System.out.println(baseResponse.getResult() instanceof Receipt);
-
-                if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof Receipt) {
-
-                    //save receipt to db
-                    Receipt receipt = (Receipt) baseResponse.getResult();
-                    receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
-
-                    //get categories from server and save them to db
-                    List<Item> items = receipt.getItems();
-                    categoryInteractor.getAndSaveCategories(items);
-
-                } else if (!baseResponse.getError().isEmpty()) {
-                    ChecksApplication.log.info(baseResponse.getError());
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                fnsResult.setErrorResult("Shit happens: " + e.getMessage());
-            }
-        });
+//        fnsResult.setResultHandler(result -> {
+//            try {
+//                System.out.println(result);
+//                if (result == null) return;
+//
+//                BaseResponse baseResponse = ((BaseResponse) result);
+//
+//                System.out.println(baseResponse.getError().isEmpty());
+//                System.out.println(baseResponse.getResult() instanceof Receipt);
+//
+//                if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof Receipt) {
+//
+//                    //save receipt to db
+//                    Receipt receipt = (Receipt) baseResponse.getResult();
+//                    receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
+//
+//                    //get categories from server and save them to db
+//                    List<Item> items = receipt.getItems();
+//                    categoryInteractor.getAndSaveCategories(items);
+//
+//                } else if (!baseResponse.getError().isEmpty()) {
+//                    ChecksApplication.log.info(baseResponse.getError());
+//                }
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                fnsResult.setErrorResult("Shit happens: " + e.getMessage());
+//            }
+//        });
 
         return fnsResult;
     }

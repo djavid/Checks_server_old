@@ -1,10 +1,12 @@
 package com.djavid.checkserver.service;
 
 import com.djavid.checkserver.ChecksApplication;
+import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
@@ -21,6 +23,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import retrofit2.HttpException;
 
 import java.io.EOFException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.djavid.checkserver.util.Config.*;
@@ -34,6 +37,8 @@ public class CheckService {
     ReceiptRepository receiptRepository;
     @Autowired
     RegistrationTokenRepository tokenRepository;
+    @Autowired
+    private CategoryInteractor categoryInteractor;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -55,9 +60,16 @@ public class CheckService {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
+                    .doOnSuccess(checkResponseFns -> {
+                        //save receipt to db
+                        Receipt receipt = receiptInteractor.saveReceipt(checkResponseFns.getDocument().getReceipt(), token);
+
+                        //get categories from server and save them to db
+                        List<Item> items = receipt.getItems();
+                        categoryInteractor.getAndSaveCategories(items);
+                    })
                     .subscribe(
                             responseFns -> {
-                                System.out.println("OK");
                                 deferredResult.setResult(new BaseResponse(responseFns.getDocument().getReceipt()));
                             },
                             throwable -> {
@@ -74,21 +86,6 @@ public class CheckService {
 
         return deferredResult;
     }
-
-
-    private Function<? super Flowable<Throwable>, ? extends Publisher<?>> retryHandler =
-            (Flowable<Throwable> throwableFlowable) -> throwableFlowable
-                    .flatMap(throwable -> subscriber -> {
-                        if (throwable instanceof EOFException) {
-                            ChecksApplication.log.info("Retrying because HTTP 202 Accepted");
-                            subscriber.onNext(1);
-                        } else {
-                            ChecksApplication.log.info("Not retrying because " + throwable.getMessage());
-                            subscriber.onError(throwable);
-                        }
-                    })
-                    .delay(CHECK_FNS_POLLING_DELAY_SECONDS, TimeUnit.SECONDS)
-                    .zipWith(Flowable.range(1, CHECK_FNS_POLLING_COUNT), (n, i) -> i);
 
 
     private void errorHandler(Throwable throwable, DeferredResult<BaseResponse> deferredResult, FnsValues fnsValues,
@@ -119,5 +116,20 @@ public class CheckService {
         } else
             deferredResult.setErrorResult(new BaseResponse(throwable.getMessage()));
     }
+
+
+    public static Function<? super Flowable<Throwable>, ? extends Publisher<?>> retryHandler =
+            (Flowable<Throwable> throwableFlowable) -> throwableFlowable
+                    .flatMap(throwable -> subscriber -> {
+                        if (throwable instanceof EOFException) {
+                            ChecksApplication.log.info("Retrying because HTTP 202 Accepted");
+                            subscriber.onNext(1);
+                        } else {
+                            ChecksApplication.log.info("Not retrying because " + throwable.getMessage());
+                            subscriber.onError(throwable);
+                        }
+                    })
+                    .delay(CHECK_FNS_POLLING_DELAY_SECONDS, TimeUnit.SECONDS)
+                    .zipWith(Flowable.range(1, CHECK_FNS_POLLING_COUNT), (n, i) -> i);
 
 }

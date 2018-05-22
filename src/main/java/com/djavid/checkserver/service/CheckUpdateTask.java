@@ -3,15 +3,18 @@ package com.djavid.checkserver.service;
 import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
-import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.CheckResponseFns;
+import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
+import com.djavid.checkserver.util.DateUtil;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.async.DeferredResult;
+import retrofit2.HttpException;
 
 import static com.djavid.checkserver.util.Config.*;
 
@@ -24,8 +27,15 @@ public class CheckUpdateTask {
     ReceiptRepository receiptRepository;
     @Autowired
     RegistrationTokenRepository tokenRepository;
-    @Autowired
-    CheckService checkService;
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        compositeDisposable.dispose();
+    }
 
 
     @Scheduled(fixedDelay = CHECK_UPDATE_DELAY)
@@ -40,14 +50,7 @@ public class CheckUpdateTask {
                     RegistrationToken token = tokenRepository.findRegistrationTokenById(it.getTokenId());
                     if (token == null) return;
 
-                    DeferredResult<BaseResponse> deferredResult = checkService.getReceipt(it.getFnsValues(), token);
-
-                    deferredResult.setResultHandler(result -> {
-                        if (result instanceof  BaseResponse) {
-                            BaseResponse baseResponse = ((BaseResponse) result);
-                            handleBaseResponse(baseResponse, it, token);
-                        }
-                    });
+                    getReceipt(it.getFnsValues(), token, it);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -56,23 +59,49 @@ public class CheckUpdateTask {
         });
     }
 
-    private void handleBaseResponse(BaseResponse baseResponse, Receipt it, RegistrationToken token) {
 
-        if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof CheckResponseFns) {
-            ChecksApplication.log.info("Check successfully loaded " + it.toString());
+    private void getReceipt(FnsValues fnsValues, RegistrationToken token, Receipt it) {
 
-            Receipt receipt = ((CheckResponseFns) baseResponse.getResult()).getDocument().getReceipt();
+        Disposable disposable = receiptInteractor.getReceipt(fnsValues)
+                .retryWhen(CheckService.retryHandler)
+                .subscribe(
+                        responseFns -> {
+                            Receipt receipt = responseFns.getDocument().getReceipt();
+                            receiptInteractor.saveReceipt(receipt, token);
+                            receiptRepository.delete(it);
+                            ChecksApplication.log.info("Check successfully loaded " + it.toString());
+                        },
+                        throwable -> {
+                            errorHandler(throwable, fnsValues, token, it);
+                        });
+        compositeDisposable.add(disposable);
+    }
 
-            receiptInteractor.saveReceipt(receipt, token);
-            receiptRepository.delete(it);
+    private void errorHandler(Throwable throwable, FnsValues fnsValues,
+                              RegistrationToken token, Receipt receipt) {
+        ChecksApplication.log.error(throwable.getMessage());
 
-        } else if (baseResponse.getError().equals(ERROR_CHECK_NOT_FOUND)) {
-            ChecksApplication.log.info("Check not found and is being deleted " + it.toString());
-            receiptRepository.delete(it);
+        if (throwable instanceof HttpException) {
+            HttpException httpException = (HttpException) throwable;
 
-        } else if (baseResponse.getError().equals(ERROR_CHECK_NOT_LOADED)) {
-            ChecksApplication.log.info(ERROR_CHECK_NOT_LOADED);
+            if (httpException.code() == 406) {
+
+                DateTime currentDate = new DateTime();
+                DateTime checkDate = DateUtil.parseDate(fnsValues.date);
+                if (checkDate == null) return;
+
+                if (checkDate.isAfter(currentDate.minusHours(CHECK_EXPIRE_HOURS))) {
+                    //чек напечатан в последние 25 часов и пока не поступил в налоговую
+                    ChecksApplication.log.info(ERROR_CHECK_NOT_LOADED);
+                } else {
+                    //чек устарел
+                    ChecksApplication.log.info("Check not found and is being deleted " + receipt.toString());
+                    receiptRepository.delete(receipt);
+                }
+            }
         }
     }
+
+
 
 }
