@@ -57,7 +57,7 @@ public class CheckService {
                     .retryWhen(retryHandler)
                     .subscribe(
                             responseFns ->
-                                    deferredResult.setResult(new BaseResponse(responseFns)),
+                                    deferredResult.setResult(new BaseResponse(responseFns.getDocument().getReceipt())),
                             throwable -> {
                                 ChecksApplication.log.error(throwable.getMessage());
 

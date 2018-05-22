@@ -8,7 +8,6 @@ import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.query.FnsValues;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.CheckResponseFns;
 import com.djavid.checkserver.model.entity.response.GetReceiptsResponse;
 import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
@@ -169,11 +168,11 @@ public class ReceiptController {
 
                 BaseResponse baseResponse = ((BaseResponse) result);
 
-                if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof CheckResponseFns) {
+                if (baseResponse.getError().isEmpty() && baseResponse.getResult() instanceof Receipt) {
 
                     //save receipt to db
-                    CheckResponseFns checkResponse = (CheckResponseFns) baseResponse.getResult();
-                    Receipt receipt = checkResponse.getDocument().getReceipt();
+
+                    Receipt receipt = (Receipt) baseResponse.getResult();
                     receipt = receiptInteractor.saveReceipt(receipt, registrationToken);
 
                     //get categories from server and save them to db
