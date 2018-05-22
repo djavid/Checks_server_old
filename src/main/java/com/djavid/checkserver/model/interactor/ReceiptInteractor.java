@@ -48,7 +48,8 @@ public class ReceiptInteractor {
             receipt.setTokenId(token.getId());
             receipt.setCreated(System.currentTimeMillis());
             receipt.getItems().forEach(it -> it.setReceipt(receipt));
-            receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
+            if (receipt.getUser() != null && !receipt.getUser().isEmpty())
+                receipt.setLogo(LogoUtil.getLogo(receipt.getUser()));
             receipt.setUser(StringUtil.formatShopTitle(receipt.getUser()));
 
             ChecksApplication.log.info("Saved receipt with token id " + receipt.getTokenId());

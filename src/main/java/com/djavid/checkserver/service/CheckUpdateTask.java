@@ -46,7 +46,6 @@ public class CheckUpdateTask {
         iterable.forEach(it -> {
             if (it.isEmpty()) {
                 try {
-
                     RegistrationToken token = tokenRepository.findRegistrationTokenById(it.getTokenId());
                     if (token == null) return;
 
