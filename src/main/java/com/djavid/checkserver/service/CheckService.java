@@ -60,17 +60,24 @@ public class CheckService {
 
             Disposable disposable = receiptInteractor.getReceipt(fnsValues)
                     .retryWhen(retryHandler)
-                    .doOnSuccess(checkResponseFns -> {
-                        //save receipt to db
-                        Receipt receipt = receiptInteractor.saveReceipt(checkResponseFns.getDocument().getReceipt(), token);
-
-                        //get categories from server and save them to db
-                        List<Item> items = receipt.getItems();
-                        categoryInteractor.getAndSaveCategories(items);
-                    })
+//                    .doOnSuccess(checkResponseFns -> {
+//                        //save receipt to db
+//                        Receipt receipt = receiptInteractor.saveReceipt(checkResponseFns.getDocument().getReceipt(), token);
+//
+//                        //get categories from server and save them to db
+//                        List<Item> items = receipt.getItems();
+//                        categoryInteractor.getAndSaveCategories(items);
+//                    })
                     .subscribe(
                             responseFns -> {
-                                deferredResult.setResult(new BaseResponse(responseFns.getDocument().getReceipt()));
+                                //save receipt to db
+                                Receipt receipt = receiptInteractor.saveReceipt(responseFns.getDocument().getReceipt(), token);
+
+                                //get categories from server and save them to db
+                                List<Item> items = receipt.getItems();
+                                categoryInteractor.getAndSaveCategories(items);
+
+                                deferredResult.setResult(new BaseResponse(receipt));
                             },
                             throwable -> {
                                 ChecksApplication.log.error(throwable.getMessage());
@@ -90,6 +97,8 @@ public class CheckService {
 
     private void errorHandler(Throwable throwable, DeferredResult<BaseResponse> deferredResult, FnsValues fnsValues,
                               RegistrationToken token) {
+
+        throwable.printStackTrace();
 
         if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
