@@ -71,14 +71,14 @@ public class StatsController {
         for (Receipt receipt : receipts) {
             for (Item item : receipt.getItems()) {
                 System.out.println(item);
-                int count = mapCount.getOrDefault(item.getCategory(), 1);
+                int count = mapCount.getOrDefault(item.getCategory(), 0);
                 System.out.println(count);
-                mapCount.put(item.getCategory(), count);
+                mapCount.put(item.getCategory(), count + 1);
                 if (count > maxCount) maxCount = count;
 
                 double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0;
                 System.out.println(sum);
-                mapSum.put(item.getCategory(), sum);
+                mapSum.put(item.getCategory(), sum + item.getSum());
             }
         }
         System.out.println(maxCount);
