@@ -72,13 +72,13 @@ public class StatsController {
         for (Receipt receipt : receipts) {
             for (Item item : receipt.getItems()) {
                 System.out.println(item);
-                int count = mapCount.getOrDefault(item.getCategory(), 0);
+                int count = mapCount.getOrDefault(item.getCategory(), 0) + 1;
                 System.out.println(count);
-                mapCount.put(item.getCategory(), count + 1);
+                mapCount.put(item.getCategory(), count);
 
-                double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0;
+                double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0 + (item.getSum() / 100.0);
                 System.out.println(sum);
-                mapSum.put(item.getCategory(), sum + item.getSum() / 100.0);
+                mapSum.put(item.getCategory(), sum);
             }
         }
 
@@ -96,10 +96,10 @@ public class StatsController {
         }
         System.out.println(allCount);
 
-        mapCount.forEach((s, integer) -> {
-            categories.add(s);
-            counts.add(integer);
-        });
+//        mapCount.forEach((s, integer) -> {
+////            categories.add(s);
+////            counts.add(integer);
+////        });
         mapSum.forEach((s, aDouble) -> sums.add(aDouble));
 
 
