@@ -54,8 +54,8 @@ public class StatsController {
         registrationToken.setLastVisited(System.currentTimeMillis());
         tokenRepository.save(registrationToken);
 
-        DateTime dateStart = new DateTime(start);
-        DateTime dateEnd = new DateTime(end);
+        DateTime dateStart = new DateTime(start).withTimeAtStartOfDay();
+        DateTime dateEnd = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
 
         //select those receipts that are in input date interval
         List<Receipt> receipts = receiptInteractor.getReceiptsInInterval(registrationToken, dateStart, dateEnd);
