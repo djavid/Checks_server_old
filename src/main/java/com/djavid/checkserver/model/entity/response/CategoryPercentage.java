@@ -3,16 +3,20 @@ package com.djavid.checkserver.model.entity.response;
 public class CategoryPercentage {
 
     private String category;
-    private Double percentage;
-    private Double sum;
+    private double percentageCount;
+    private double percentageSum;
+    private double sum;
+    private int count;
 
 
     public CategoryPercentage() { }
 
-    public CategoryPercentage(String category, Double percentage, Double sum) {
+    public CategoryPercentage(String category, double percentageCount, double percentageSum, double sum, int count) {
         this.category = category;
-        this.percentage = percentage;
+        this.percentageCount = percentageCount;
+        this.percentageSum = percentageSum;
         this.sum = sum;
+        this.count = count;
     }
 
 
@@ -20,8 +24,10 @@ public class CategoryPercentage {
     public String toString() {
         return "CategoryPercentage{" +
                 "category='" + category + '\'' +
-                ", percentage=" + percentage +
+                ", percentageCount=" + percentageCount +
+                ", percentageSum=" + percentageSum +
                 ", sum=" + sum +
+                ", count=" + count +
                 '}';
     }
 
@@ -33,12 +39,20 @@ public class CategoryPercentage {
         this.category = category;
     }
 
-    public Double getPercentage() {
-        return percentage;
+    public Double getPercentageCount() {
+        return percentageCount;
     }
 
-    public void setPercentage(Double percentage) {
-        this.percentage = percentage;
+    public void setPercentageCount(Double percentageCount) {
+        this.percentageCount = percentageCount;
+    }
+
+    public Double getPercentageSum() {
+        return percentageSum;
+    }
+
+    public void setPercentageSum(Double percentageSum) {
+        this.percentageSum = percentageSum;
     }
 
     public Double getSum() {
@@ -47,5 +61,25 @@ public class CategoryPercentage {
 
     public void setSum(Double sum) {
         this.sum = sum;
+    }
+
+    public void setPercentageCount(double percentageCount) {
+        this.percentageCount = percentageCount;
+    }
+
+    public void setPercentageSum(double percentageSum) {
+        this.percentageSum = percentageSum;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

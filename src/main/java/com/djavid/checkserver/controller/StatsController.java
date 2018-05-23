@@ -96,37 +96,41 @@ public class StatsController {
         }
 
         //get them into array
-        List<String> categories = new ArrayList<>();
+        List<String> titles = new ArrayList<>();
         List<Integer> counts = new ArrayList<>();
         List<Double> sums = new ArrayList<>();
         int allCount = 0;
+        double allSum = 0;
 
         for (Map.Entry<String, Integer> entry : mapCount.entrySet()) {
-            categories.add(entry.getKey());
+            titles.add(entry.getKey());
             counts.add(entry.getValue());
             allCount += entry.getValue();
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
         System.out.println(allCount);
 
-        mapSum.forEach((s, aDouble) -> sums.add(aDouble));
-
-
+        for (Map.Entry<String, Double> entry : mapSum.entrySet()) {
+            sums.add(entry.getValue());
+            allSum += entry.getValue();
+        }
+        System.out.println(allSum);
 
         //add them to response
-        List<CategoryPercentage> categoryPercentageList = new ArrayList<>();
-        for (int i = 0; i < categories.size(); i++) {
-            Double percent = counts.get(i).doubleValue() / allCount;
+        List<CategoryPercentage> percentageList = new ArrayList<>();
+        for (int i = 0; i < titles.size(); i++) {
+            Double percentCount = counts.get(i).doubleValue() / allCount;
+            Double percentSum = sums.get(i) / allSum;
 
-            CategoryPercentage categoryPercentage =
-                    new CategoryPercentage(categories.get(i), percent, sums.get(i));
-            categoryPercentageList.add(categoryPercentage);
-            System.out.println(categoryPercentage);
+            CategoryPercentage percentage =
+                    new CategoryPercentage(titles.get(i), percentCount, percentSum, sums.get(i), counts.get(i));
+            percentageList.add(percentage);
+            System.out.println(percentage);
         }
 
         System.out.println(new DateTime());
 
-        return new BaseResponse(categoryPercentageList);
+        return new BaseResponse(percentageList);
     }
 
 }
