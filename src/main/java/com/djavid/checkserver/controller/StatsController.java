@@ -49,6 +49,8 @@ public class StatsController {
                                          @RequestParam long start,
                                          @RequestParam long end) {
 
+        System.out.println(new DateTime());
+
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
             return new BaseResponse("Token is incorrect!");
@@ -67,44 +69,53 @@ public class StatsController {
         Map<String, Integer> mapCount = new HashMap<>();
         Map<String, Double> mapSum = new HashMap<>();
 
-        int maxCount = 0;
         for (Receipt receipt : receipts) {
             for (Item item : receipt.getItems()) {
                 System.out.println(item);
                 int count = mapCount.getOrDefault(item.getCategory(), 0);
                 System.out.println(count);
                 mapCount.put(item.getCategory(), count + 1);
-                if (count > maxCount) maxCount = count;
 
                 double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0;
                 System.out.println(sum);
-                mapSum.put(item.getCategory(), sum + item.getSum());
+                mapSum.put(item.getCategory(), sum + item.getSum() / 100.0);
             }
         }
-        System.out.println(maxCount);
 
         //get them into array
         List<String> categories = new ArrayList<>();
         List<Integer> counts = new ArrayList<>();
         List<Double> sums = new ArrayList<>();
+        int allCount = 0;
+
+        for (Map.Entry<String, Integer> entry : mapCount.entrySet()) {
+            categories.add(entry.getKey());
+            counts.add(entry.getValue());
+            allCount += entry.getValue();
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        System.out.println(allCount);
 
         mapCount.forEach((s, integer) -> {
             categories.add(s);
             counts.add(integer);
-            System.out.println(s + " " + integer);
         });
         mapSum.forEach((s, aDouble) -> sums.add(aDouble));
+
+
 
         //add them to response
         List<CategoryPercentage> categoryPercentageList = new ArrayList<>();
         for (int i = 0; i < categories.size(); i++) {
-            Double percent = counts.get(i).doubleValue() / maxCount;
+            Double percent = counts.get(i).doubleValue() / allCount;
 
             CategoryPercentage categoryPercentage =
                     new CategoryPercentage(categories.get(i), percent, sums.get(i));
             categoryPercentageList.add(categoryPercentage);
             System.out.println(categoryPercentage);
         }
+
+        System.out.println(new DateTime());
 
         return new BaseResponse(categoryPercentageList);
     }
