@@ -1,6 +1,6 @@
 package com.djavid.checkserver.model.entity.response;
 
-public class CategoryPercentage {
+public class Percentage {
 
     private String category;
     private double percentageCount;
@@ -9,9 +9,9 @@ public class CategoryPercentage {
     private int count;
 
 
-    public CategoryPercentage() { }
+    public Percentage() { }
 
-    public CategoryPercentage(String category, double percentageCount, double percentageSum, double sum, int count) {
+    public Percentage(String category, double percentageCount, double percentageSum, double sum, int count) {
         this.category = category;
         this.percentageCount = percentageCount;
         this.percentageSum = percentageSum;
@@ -22,7 +22,7 @@ public class CategoryPercentage {
 
     @Override
     public String toString() {
-        return "CategoryPercentage{" +
+        return "Percentage{" +
                 "category='" + category + '\'' +
                 ", percentageCount=" + percentageCount +
                 ", percentageSum=" + percentageSum +

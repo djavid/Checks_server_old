@@ -5,7 +5,8 @@ import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
-import com.djavid.checkserver.model.entity.response.CategoryPercentage;
+import com.djavid.checkserver.model.entity.response.Percentage;
+import com.djavid.checkserver.model.entity.response.StatPercentResponse;
 import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
 import com.djavid.checkserver.model.repository.ItemRepository;
@@ -117,20 +118,19 @@ public class StatsController {
         System.out.println(allSum);
 
         //add them to response
-        List<CategoryPercentage> percentageList = new ArrayList<>();
+        List<Percentage> percentageList = new ArrayList<>();
         for (int i = 0; i < titles.size(); i++) {
             Double percentCount = counts.get(i).doubleValue() / allCount;
             Double percentSum = sums.get(i) / allSum;
 
-            CategoryPercentage percentage =
-                    new CategoryPercentage(titles.get(i), percentCount, percentSum, sums.get(i), counts.get(i));
+            Percentage percentage =
+                    new Percentage(titles.get(i), percentCount, percentSum, sums.get(i), counts.get(i));
             percentageList.add(percentage);
-            System.out.println(percentage);
         }
 
-        System.out.println(new DateTime());
+        StatPercentResponse response = new StatPercentResponse(percentageList, allSum);
 
-        return new BaseResponse(percentageList);
+        return new BaseResponse(response);
     }
 
 }
