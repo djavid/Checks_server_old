@@ -56,10 +56,13 @@ public class StatsController {
 
         DateTime dateStart = new DateTime(start).withTimeAtStartOfDay();
         DateTime dateEnd = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
+        System.out.println(dateStart);
+        System.out.println(dateEnd);
 
         //select those receipts that are in input date interval
         List<Receipt> receipts = receiptInteractor.getReceiptsInInterval(registrationToken, dateStart, dateEnd);
 
+        //get counts and sums for each category
         Map<String, Integer> mapCount = new HashMap<>();
         Map<String, Double> mapSum = new HashMap<>();
 
@@ -75,6 +78,7 @@ public class StatsController {
             }
         }
 
+        //get them into array
         List<String> categories = new ArrayList<>();
         List<Integer> counts = new ArrayList<>();
         List<Double> sums = new ArrayList<>();
@@ -85,6 +89,7 @@ public class StatsController {
         });
         mapSum.forEach((s, aDouble) -> sums.add(aDouble));
 
+        //add them to response
         List<CategoryPercentage> categoryPercentageList = new ArrayList<>();
         for (int i = 0; i < categories.size(); i++) {
             Double percent = counts.get(i).doubleValue() / maxCount;
