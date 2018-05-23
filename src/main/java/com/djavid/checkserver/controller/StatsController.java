@@ -76,7 +76,7 @@ public class StatsController {
                 System.out.println(count);
                 mapCount.put(item.getCategory(), count);
 
-                double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0 + (item.getSum() / 100.0);
+                double sum = mapSum.getOrDefault(item.getCategory(), 0.0) + (item.getSum() / 100.0);
                 System.out.println(sum);
                 mapSum.put(item.getCategory(), sum);
             }
