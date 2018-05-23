@@ -5,6 +5,7 @@ import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
 import com.djavid.checkserver.model.entity.response.BaseResponse;
+import com.djavid.checkserver.model.entity.response.CategoryPercentage;
 import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
 import com.djavid.checkserver.model.repository.ItemRepository;
@@ -100,18 +101,5 @@ public class StatsController {
         }
 
         return new BaseResponse(categoryPercentageList);
-    }
-
-
-    class CategoryPercentage {
-        String category;
-        Double percentage;
-        Double sum;
-
-        CategoryPercentage(String category, Double percentage, Double sum) {
-            this.category = category;
-            this.percentage = percentage;
-            this.sum = sum;
-        }
     }
 }
