@@ -70,14 +70,18 @@ public class StatsController {
         int maxCount = 0;
         for (Receipt receipt : receipts) {
             for (Item item : receipt.getItems()) {
+                System.out.println(item);
                 int count = mapCount.getOrDefault(item.getCategory(), 1);
+                System.out.println(count);
                 mapCount.put(item.getCategory(), count);
                 if (count > maxCount) maxCount = count;
 
                 double sum = mapSum.getOrDefault(item.getCategory(), 0.0) / 100.0;
+                System.out.println(sum);
                 mapSum.put(item.getCategory(), sum);
             }
         }
+        System.out.println(maxCount);
 
         //get them into array
         List<String> categories = new ArrayList<>();
@@ -87,6 +91,7 @@ public class StatsController {
         mapCount.forEach((s, integer) -> {
             categories.add(s);
             counts.add(integer);
+            System.out.println(s + " " + integer);
         });
         mapSum.forEach((s, aDouble) -> sums.add(aDouble));
 
@@ -98,6 +103,7 @@ public class StatsController {
             CategoryPercentage categoryPercentage =
                     new CategoryPercentage(categories.get(i), percent, sums.get(i));
             categoryPercentageList.add(categoryPercentage);
+            System.out.println(categoryPercentage);
         }
 
         return new BaseResponse(categoryPercentageList);

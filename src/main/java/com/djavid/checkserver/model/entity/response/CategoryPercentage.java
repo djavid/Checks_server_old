@@ -16,6 +16,15 @@ public class CategoryPercentage {
     }
 
 
+    @Override
+    public String toString() {
+        return "CategoryPercentage{" +
+                "category='" + category + '\'' +
+                ", percentage=" + percentage +
+                ", sum=" + sum +
+                '}';
+    }
+
     public String getCategory() {
         return category;
     }
