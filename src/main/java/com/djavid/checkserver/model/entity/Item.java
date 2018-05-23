@@ -48,7 +48,6 @@ public class Item {
                 ", nds18=" + nds18 +
                 ", nds10=" + nds10 +
                 ", category='" + category + '\'' +
-                ", receipt=" + receipt +
                 '}';
     }
 
