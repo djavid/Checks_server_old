@@ -36,27 +36,22 @@ import static io.reactivex.schedulers.Schedulers.newThread;
 @RequestMapping(value = "receipt")
 public class ReceiptController {
 
-    private final ReceiptRepository receiptRepository;
-    private final ItemRepository itemRepository;
-    private final RegistrationTokenRepository tokenRepository;
-    private final ReceiptInteractor receiptInteractor;
-    private final Api api;
-    private Disposable disposable;
-
+    @Autowired
+    private ReceiptRepository receiptRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private RegistrationTokenRepository tokenRepository;
+    @Autowired
+    private ReceiptInteractor receiptInteractor;
     @Autowired
     private CheckService checkService;
     @Autowired
     private CategoryInteractor categoryInteractor;
+    @Autowired
+    private Api api;
 
-
-    public ReceiptController(ReceiptRepository receiptRepository, ItemRepository itemRepository,
-                             RegistrationTokenRepository tokenRepository, Api api, ReceiptInteractor receiptInteractor) {
-        this.receiptRepository = receiptRepository;
-        this.itemRepository = itemRepository;
-        this.tokenRepository = tokenRepository;
-        this.receiptInteractor = receiptInteractor;
-        this.api = api;
-    }
+    private Disposable disposable;
 
 
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json")
@@ -102,6 +97,8 @@ public class ReceiptController {
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
             return "Token is incorrect!";
+        registrationToken.setLastVisited(System.currentTimeMillis());
+        tokenRepository.save(registrationToken);
 
         try {
             Receipt foundReceipt = receiptRepository.findReceiptByReceiptId(id);
@@ -127,6 +124,8 @@ public class ReceiptController {
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
             return "Token is incorrect!";
+        registrationToken.setLastVisited(System.currentTimeMillis());
+        tokenRepository.save(registrationToken);
 
         try {
             Receipt foundReceipt = receiptRepository.findReceiptByReceiptId(receipt.getReceiptId());

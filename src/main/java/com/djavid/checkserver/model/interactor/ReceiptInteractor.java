@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.djavid.checkserver.util.Config.getAuthToken;
 
 @Repository
@@ -93,6 +96,22 @@ public class ReceiptInteractor {
     public Receipt findByFnsValues(FnsValues fnsValues, long tokenId) {
         return receiptRepository.findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndTokenId
                 (fnsValues.fiscalDriveNumber, fnsValues.fiscalDocumentNumber, fnsValues.fiscalSign, tokenId);
+    }
+
+    public List<Receipt> getReceiptsInInterval(RegistrationToken token, DateTime start, DateTime end) {
+
+        receiptRepository.findReceiptsByTokenId(token.getId());
+
+        List<Receipt> receipts = new ArrayList<>();
+        receiptRepository.findReceiptsByTokenId(token.getId()).forEach(receipt -> {
+            DateTime date = DateTime.parse(receipt.getDateTime());
+
+            if (date.isAfter(start) && date.isBefore(end)) {
+                receipts.add(receipt);
+            }
+        });
+
+        return receipts;
     }
 
 }
