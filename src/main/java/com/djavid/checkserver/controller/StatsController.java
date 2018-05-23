@@ -47,7 +47,8 @@ public class StatsController {
     @RequestMapping(method = RequestMethod.GET)
     public BaseResponse getIntervalStats(@RequestHeader("Token") String token,
                                          @RequestParam long start,
-                                         @RequestParam long end) {
+                                         @RequestParam long end,
+                                         @RequestParam boolean shop) {
 
         System.out.println(new DateTime());
 
@@ -69,16 +70,28 @@ public class StatsController {
         Map<String, Integer> mapCount = new HashMap<>();
         Map<String, Double> mapSum = new HashMap<>();
 
-        for (Receipt receipt : receipts) {
-            for (Item item : receipt.getItems()) {
-                System.out.println(item);
-                int count = mapCount.getOrDefault(item.getCategory(), 0) + 1;
+        if (shop) {
+            for (Receipt receipt : receipts) {
+                int count = mapCount.getOrDefault(receipt.getUser(), 0) + 1;
                 System.out.println(count);
-                mapCount.put(item.getCategory(), count);
+                mapCount.put(receipt.getUser(), count);
 
-                double sum = mapSum.getOrDefault(item.getCategory(), 0.0) + (item.getSum() / 100.0);
+                double sum = mapSum.getOrDefault(receipt.getUser(), 0.0) + (receipt.getTotalSum() / 100.0);
                 System.out.println(sum);
-                mapSum.put(item.getCategory(), sum);
+                mapSum.put(receipt.getUser(), sum);
+            }
+        } else {
+            for (Receipt receipt : receipts) {
+                for (Item item : receipt.getItems()) {
+                    System.out.println(item);
+                    int count = mapCount.getOrDefault(item.getCategory(), 0) + 1;
+                    System.out.println(count);
+                    mapCount.put(item.getCategory(), count);
+
+                    double sum = mapSum.getOrDefault(item.getCategory(), 0.0) + (item.getSum() / 100.0);
+                    System.out.println(sum);
+                    mapSum.put(item.getCategory(), sum);
+                }
             }
         }
 
@@ -96,10 +109,6 @@ public class StatsController {
         }
         System.out.println(allCount);
 
-//        mapCount.forEach((s, integer) -> {
-////            categories.add(s);
-////            counts.add(integer);
-////        });
         mapSum.forEach((s, aDouble) -> sums.add(aDouble));
 
 
@@ -119,4 +128,5 @@ public class StatsController {
 
         return new BaseResponse(categoryPercentageList);
     }
+
 }
