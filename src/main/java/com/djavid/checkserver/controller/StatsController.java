@@ -48,8 +48,7 @@ public class StatsController {
     @RequestMapping(method = RequestMethod.GET)
     public BaseResponse getIntervalStats(@RequestHeader("Token") String token,
                                          @RequestParam long start,
-                                         @RequestParam long end,
-                                         @RequestParam boolean shop) {
+                                         @RequestParam long end) {
 
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
