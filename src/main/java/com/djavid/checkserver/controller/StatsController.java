@@ -51,8 +51,6 @@ public class StatsController {
                                          @RequestParam long end,
                                          @RequestParam boolean shop) {
 
-        System.out.println(new DateTime());
-
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
             return new BaseResponse("Token is incorrect!");
@@ -61,76 +59,94 @@ public class StatsController {
 
         DateTime dateStart = new DateTime(start).withTimeAtStartOfDay();
         DateTime dateEnd = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
-        System.out.println(dateStart);
-        System.out.println(dateEnd);
 
         //select those receipts that are in input date interval
         List<Receipt> receipts = receiptInteractor.getReceiptsInInterval(registrationToken, dateStart, dateEnd);
 
         //get counts and sums for each category
-        Map<String, Integer> mapCount = new HashMap<>();
-        Map<String, Double> mapSum = new HashMap<>();
+        Map<String, Integer> mapCategoryCount = getCountsMap(receipts, false);
+        Map<String, Double> mapCategorySum = getSumsMap(receipts, false);
 
-        if (shop) {
-            for (Receipt receipt : receipts) {
-                int count = mapCount.getOrDefault(receipt.getUser(), 0) + 1;
-                System.out.println(count);
-                mapCount.put(receipt.getUser(), count);
-
-                double sum = mapSum.getOrDefault(receipt.getUser(), 0.0) + (receipt.getTotalSum() / 100.0);
-                System.out.println(sum);
-                mapSum.put(receipt.getUser(), sum);
-            }
-        } else {
-            for (Receipt receipt : receipts) {
-                for (Item item : receipt.getItems()) {
-                    System.out.println(item);
-                    int count = mapCount.getOrDefault(item.getCategory(), 0) + 1;
-                    System.out.println(count);
-                    mapCount.put(item.getCategory(), count);
-
-                    double sum = mapSum.getOrDefault(item.getCategory(), 0.0) + (item.getSum() / 100.0);
-                    System.out.println(sum);
-                    mapSum.put(item.getCategory(), sum);
-                }
-            }
-        }
+        Map<String, Integer> mapShopCount = getCountsMap(receipts, true);
+        Map<String, Double> mapShopSum = getSumsMap(receipts, true);
 
         //get them into array
-        List<String> titles = new ArrayList<>();
-        List<Integer> counts = new ArrayList<>();
-        List<Double> sums = new ArrayList<>();
-        int allCount = 0;
-        double allSum = 0;
+        List<String> titlesCategory = new ArrayList<>(mapCategoryCount.keySet());
+        List<Integer> countsCategory = new ArrayList<>(mapCategoryCount.values());
+        List<Double> sumsCategory = new ArrayList<>(mapCategorySum.values());
 
-        for (Map.Entry<String, Integer> entry : mapCount.entrySet()) {
-            titles.add(entry.getKey());
-            counts.add(entry.getValue());
-            allCount += entry.getValue();
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-        System.out.println(allCount);
+        List<String> titlesShop = new ArrayList<>(mapShopCount.keySet());
+        List<Integer> countsShop = new ArrayList<>(mapShopCount.values());
+        List<Double> sumsShop = new ArrayList<>(mapShopSum.values());
 
-        for (Map.Entry<String, Double> entry : mapSum.entrySet()) {
-            sums.add(entry.getValue());
-            allSum += entry.getValue();
-        }
-        System.out.println(allSum);
+        int allCountCategory = mapCategoryCount.values().stream().mapToInt(Integer::intValue).sum();
+        int allCountShop = mapShopCount.values().stream().mapToInt(Integer::intValue).sum();
+
+        double allSum = mapCategorySum.values().stream().mapToDouble(Double::doubleValue).sum();
 
         //add them to response
-        List<Percentage> percentageList = new ArrayList<>();
+        List<Percentage> categories = getPercentages(titlesCategory, countsCategory, sumsCategory, allCountCategory, allSum);
+        List<Percentage> shops = getPercentages(titlesShop, countsShop, sumsShop, allCountShop, allSum);
+
+        StatPercentResponse response = new StatPercentResponse(categories, shops, allSum);
+
+        return new BaseResponse(response);
+    }
+
+    private List<Percentage> getPercentages(List<String> titles, List<Integer> counts, List<Double> sums,
+                                            int allCount, double allSum) {
+        List<Percentage> percentages = new ArrayList<>();
+
         for (int i = 0; i < titles.size(); i++) {
             Double percentCount = counts.get(i).doubleValue() / allCount;
             Double percentSum = sums.get(i) / allSum;
 
             Percentage percentage =
                     new Percentage(titles.get(i), percentCount, percentSum, sums.get(i), counts.get(i));
-            percentageList.add(percentage);
+            percentages.add(percentage);
         }
 
-        StatPercentResponse response = new StatPercentResponse(percentageList, allSum);
+        return percentages;
+    }
 
-        return new BaseResponse(response);
+    private Map<String, Integer> getCountsMap(List<Receipt> receipts, boolean shop) {
+        Map<String, Integer> mapCount = new HashMap<>();
+
+        if (shop) {
+            for (Receipt receipt : receipts) {
+                int count = mapCount.getOrDefault(receipt.getUser(), 0) + 1;
+                mapCount.put(receipt.getUser(), count);
+            }
+        } else {
+            for (Receipt receipt : receipts) {
+                for (Item item : receipt.getItems()) {
+                    int count = mapCount.getOrDefault(item.getCategory(), 0) + 1;
+                    mapCount.put(item.getCategory(), count);
+                }
+            }
+        }
+
+        return mapCount;
+    }
+
+    private Map<String, Double> getSumsMap(List<Receipt> receipts, boolean shop) {
+        Map<String, Double> mapSum = new HashMap<>();
+
+        if (shop) {
+            for (Receipt receipt : receipts) {
+                double sum = mapSum.getOrDefault(receipt.getUser(), 0.0) + (receipt.getTotalSum() / 100.0);
+                mapSum.put(receipt.getUser(), sum);
+            }
+        } else {
+            for (Receipt receipt : receipts) {
+                for (Item item : receipt.getItems()) {
+                    double sum = mapSum.getOrDefault(item.getCategory(), 0.0) + (item.getSum() / 100.0);
+                    mapSum.put(item.getCategory(), sum);
+                }
+            }
+        }
+
+        return mapSum;
     }
 
 }
