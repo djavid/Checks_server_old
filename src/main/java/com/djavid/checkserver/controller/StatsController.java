@@ -79,6 +79,8 @@ public class StatsController {
             } else {
                 dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
             }
+
+            dateIndex = dateIndex.minusDays(days);
         }
 
         return new BaseResponse(dateIntervals);
