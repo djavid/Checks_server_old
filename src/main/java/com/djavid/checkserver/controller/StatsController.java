@@ -69,7 +69,7 @@ public class StatsController {
         }
 
         dateStart = dateStart.withTimeAtStartOfDay();
-        DateTime dateIndex = new DateTime().plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
+        DateTime dateIndex = new DateTime().withDayOfWeek(7).plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
 
         List<DateInterval> dateIntervals = new ArrayList<>();
 
