@@ -123,8 +123,8 @@ public class StatsController {
             List<DateInterval> dateIntervals = new ArrayList<>();
 
             while (dateIndex.isAfter(dateStart)) {
-                if (dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().minusMinutes(1).isAfter(dateStart)) {
-                    dateIntervals.add(new DateInterval(dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().plusMinutes(1).toString(), dateIndex.toString()));
+                if (dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().isAfter(dateStart)) {
+                    dateIntervals.add(new DateInterval(dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().toString(), dateIndex.toString()));
                 } else {
                     dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
                 }
