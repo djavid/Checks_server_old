@@ -45,6 +45,57 @@ public class StatsController {
     private Disposable disposable;
 
 
+    @RequestMapping(value = "/intervals", method = RequestMethod.GET)
+    public BaseResponse getIntervals(@RequestHeader("Token") String token,
+                                     @RequestParam int days) {
+
+        RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+        if (registrationToken == null)
+            return new BaseResponse("Token is incorrect!");
+        registrationToken.setLastVisited(System.currentTimeMillis());
+        tokenRepository.save(registrationToken);
+
+        //select those receipts that are in input date interval
+        List<Receipt> receipts = receiptRepository.findReceiptsByTokenId(registrationToken.getId());
+
+        //get oldest date from receipts
+        DateTime dateStart = new DateTime();
+
+        for (Receipt receipt : receipts) {
+            DateTime datetime = DateTime.parse(receipt.getDateTime());
+
+            if (datetime != null && datetime.isBefore(dateStart))
+                dateStart = datetime;
+        }
+
+        dateStart = dateStart.withTimeAtStartOfDay();
+        DateTime dateIndex = new DateTime().plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
+
+        List<DateInterval> dateIntervals = new ArrayList<>();
+
+        while (dateIndex.isAfter(dateStart)) {
+            if (dateIndex.minusDays(days).isAfter(dateStart)) {
+                dateIntervals.add(new DateInterval(dateIndex.minusDays(days).toString(), dateIndex.toString()));
+            } else {
+                dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+            }
+        }
+
+        return new BaseResponse(dateIntervals);
+    }
+
+    public class DateInterval {
+
+        public String dateStart;
+        public String dateEnd;
+
+        public DateInterval(String dateStart, String dateEnd) {
+            this.dateStart = dateStart;
+            this.dateEnd = dateEnd;
+        }
+    }
+
+
     @RequestMapping(method = RequestMethod.GET)
     public BaseResponse getIntervalStats(@RequestHeader("Token") String token,
                                          @RequestParam long start,
@@ -57,7 +108,7 @@ public class StatsController {
         tokenRepository.save(registrationToken);
 
         DateTime dateStart = new DateTime(start).withTimeAtStartOfDay();
-        DateTime dateEnd = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
+        DateTime dateEnd = new DateTime(end).plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
 
         //select those receipts that are in input date interval
         List<Receipt> receipts = receiptInteractor.getReceiptsInInterval(registrationToken, dateStart, dateEnd);
