@@ -75,7 +75,7 @@ public class StatsController {
 
         while (dateIndex.isAfter(dateStart)) {
             if (dateIndex.minusDays(days).isAfter(dateStart)) {
-                dateIntervals.add(new DateInterval(dateIndex.minusDays(days).toString(), dateIndex.toString()));
+                dateIntervals.add(new DateInterval(dateIndex.minusDays(days).plusMinutes(1).toString(), dateIndex.toString()));
             } else {
                 dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
             }
