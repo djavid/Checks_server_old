@@ -77,7 +77,9 @@ public class StatsController {
                 ChecksApplication.log.error(e.getMessage());
         }
 
-        if (days > 0) {
+        if (days > 0 || interval.equals("day")) {
+
+            if (interval.equals("day")) days = 1;
 
             dateStart = dateStart.withTimeAtStartOfDay();
             DateTime dateIndex = new DateTime().plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
@@ -86,9 +88,9 @@ public class StatsController {
 
             while (dateIndex.isAfter(dateStart)) {
                 if (dateIndex.minusDays(days).isAfter(dateStart)) {
-                    dateIntervals.add(new DateInterval(dateIndex.minusDays(days).plusMinutes(1).toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateIndex.minusDays(days).plusMinutes(1).toString(), dateIndex.toString(), interval));
                 } else {
-                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString(), interval));
                 }
 
                 dateIndex = dateIndex.minusDays(days);
@@ -105,9 +107,9 @@ public class StatsController {
 
             while (dateIndex.isAfter(dateStart)) {
                 if (dateIndex.minusWeeks(1).isAfter(dateStart)) {
-                    dateIntervals.add(new DateInterval(dateIndex.minusWeeks(1).plusMinutes(1).toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateIndex.minusWeeks(1).plusMinutes(1).toString(), dateIndex.toString(), interval));
                 } else {
-                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString(), interval));
                 }
 
                 dateIndex = dateIndex.minusWeeks(1);
@@ -117,6 +119,8 @@ public class StatsController {
 
         } else if (interval.equals("month")) {
 
+            //todo check this shit, i don't believe it
+
             dateStart = dateStart.withTimeAtStartOfDay();
             DateTime dateIndex = new DateTime().plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay().minusMinutes(1);
 
@@ -124,9 +128,9 @@ public class StatsController {
 
             while (dateIndex.isAfter(dateStart)) {
                 if (dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().isAfter(dateStart)) {
-                    dateIntervals.add(new DateInterval(dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().toString(), dateIndex.toString(), interval));
                 } else {
-                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString(), interval));
                 }
 
                 dateIndex = dateIndex.withDayOfMonth(1).withTimeAtStartOfDay().minusMinutes(1);
@@ -141,12 +145,14 @@ public class StatsController {
 
     public class DateInterval {
 
+        public String interval;
         public String dateStart;
         public String dateEnd;
 
-        public DateInterval(String dateStart, String dateEnd) {
+        public DateInterval(String dateStart, String dateEnd, String interval) {
             this.dateStart = dateStart;
             this.dateEnd = dateEnd;
+            this.interval = interval;
         }
     }
 
