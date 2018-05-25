@@ -1,5 +1,6 @@
 package com.djavid.checkserver.controller;
 
+import com.djavid.checkserver.ChecksApplication;
 import com.djavid.checkserver.model.Api;
 import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
@@ -47,7 +48,7 @@ public class StatsController {
 
     @RequestMapping(value = "/intervals", method = RequestMethod.GET)
     public BaseResponse getIntervals(@RequestHeader("Token") String token,
-                                     @RequestParam int days) {
+                                     @RequestParam String interval) {
 
         RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
         if (registrationToken == null)
@@ -68,22 +69,74 @@ public class StatsController {
                 dateStart = datetime;
         }
 
-        dateStart = dateStart.withTimeAtStartOfDay();
-        DateTime dateIndex = new DateTime().withDayOfWeek(7).plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
-
-        List<DateInterval> dateIntervals = new ArrayList<>();
-
-        while (dateIndex.isAfter(dateStart)) {
-            if (dateIndex.minusDays(days).isAfter(dateStart)) {
-                dateIntervals.add(new DateInterval(dateIndex.minusDays(days).plusMinutes(1).toString(), dateIndex.toString()));
-            } else {
-                dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
-            }
-
-            dateIndex = dateIndex.minusDays(days);
+        int days = -1;
+        try {
+            days = Integer.parseInt(interval);
+        } catch (Exception e) {
+            if (!(e instanceof NumberFormatException))
+                ChecksApplication.log.error(e.getMessage());
         }
 
-        return new BaseResponse(dateIntervals);
+        if (days > 0) {
+
+            dateStart = dateStart.withTimeAtStartOfDay();
+            DateTime dateIndex = new DateTime().plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
+
+            List<DateInterval> dateIntervals = new ArrayList<>();
+
+            while (dateIndex.isAfter(dateStart)) {
+                if (dateIndex.minusDays(days).isAfter(dateStart)) {
+                    dateIntervals.add(new DateInterval(dateIndex.minusDays(days).plusMinutes(1).toString(), dateIndex.toString()));
+                } else {
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                }
+
+                dateIndex = dateIndex.minusDays(days);
+            }
+
+            return new BaseResponse(dateIntervals);
+
+        } else if (interval.equals("week")) {
+
+            dateStart = dateStart.withTimeAtStartOfDay();
+            DateTime dateIndex = new DateTime().withDayOfWeek(7).plusDays(1).withTimeAtStartOfDay().minusMinutes(1);
+
+            List<DateInterval> dateIntervals = new ArrayList<>();
+
+            while (dateIndex.isAfter(dateStart)) {
+                if (dateIndex.minusWeeks(1).isAfter(dateStart)) {
+                    dateIntervals.add(new DateInterval(dateIndex.minusWeeks(1).plusMinutes(1).toString(), dateIndex.toString()));
+                } else {
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                }
+
+                dateIndex = dateIndex.minusWeeks(1);
+            }
+
+            return new BaseResponse(dateIntervals);
+
+        } else if (interval.equals("month")) {
+
+            dateStart = dateStart.withTimeAtStartOfDay();
+            DateTime dateIndex = new DateTime().plusMonths(1).withDayOfMonth(1).withTimeAtStartOfDay().minusMinutes(1);
+
+            List<DateInterval> dateIntervals = new ArrayList<>();
+
+            while (dateIndex.isAfter(dateStart)) {
+                if (dateIndex.minusMonths(1).isAfter(dateStart)) {
+                    dateIntervals.add(new DateInterval(dateIndex.minusMonths(1).plusMinutes(1).toString(), dateIndex.toString()));
+                } else {
+                    dateIntervals.add(new DateInterval(dateStart.toString(), dateIndex.toString()));
+                }
+
+                dateIndex = dateIndex.minusMonths(1);
+            }
+
+            return new BaseResponse(dateIntervals);
+
+        }
+
+        return new BaseResponse("Wrong interval format!");
     }
 
     public class DateInterval {
