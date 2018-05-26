@@ -66,8 +66,8 @@ public class CheckUpdateTask {
                 .subscribe(
                         responseFns -> {
                             Receipt receipt = responseFns.getDocument().getReceipt();
-                            receiptInteractor.saveReceipt(receipt, token);
                             receiptRepository.delete(it);
+                            receiptInteractor.saveReceipt(receipt, token);
                             ChecksApplication.log.info("Check successfully loaded " + it.toString());
                         },
                         throwable -> {
