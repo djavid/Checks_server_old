@@ -1,10 +1,14 @@
 package com.djavid.checkserver.service;
 
 import com.djavid.checkserver.ChecksApplication;
+import com.djavid.checkserver.model.entity.Item;
 import com.djavid.checkserver.model.entity.Receipt;
 import com.djavid.checkserver.model.entity.RegistrationToken;
+import com.djavid.checkserver.model.entity.query.FlaskValues;
 import com.djavid.checkserver.model.entity.query.FnsValues;
+import com.djavid.checkserver.model.interactor.CategoryInteractor;
 import com.djavid.checkserver.model.interactor.ReceiptInteractor;
+import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import com.djavid.checkserver.util.DateUtil;
@@ -15,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import retrofit2.HttpException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.djavid.checkserver.util.Config.*;
 
@@ -27,6 +34,10 @@ public class CheckUpdateTask {
     ReceiptRepository receiptRepository;
     @Autowired
     RegistrationTokenRepository tokenRepository;
+    @Autowired
+    private CategoryInteractor categoryInteractor;
+    @Autowired
+    private ItemRepository itemRepository;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -67,8 +78,23 @@ public class CheckUpdateTask {
                         responseFns -> {
                             Receipt receipt = responseFns.getDocument().getReceipt();
                             receiptRepository.delete(it);
-                            receiptInteractor.saveReceipt(receipt, token);
+                            receipt = receiptInteractor.saveReceipt(receipt, token);
                             ChecksApplication.log.info("Check successfully loaded " + it.toString());
+
+                            //get categories from server and save them to db
+                            List<Item> items = receipt.getItems();
+                            List<String> values = new ArrayList<>();
+                            items.forEach(item -> values.add(item.getName()));
+
+                            categoryInteractor.getCategories(new FlaskValues(values))
+                                    .subscribe(item -> {
+                                        for (int i = 0; i < items.size(); i++) {
+                                            items.get(i).setName(item.getNormalized().get(i));
+                                            items.get(i).setCategory(item.getCategories().get(i));
+                                            itemRepository.save(items.get(i));
+                                        }
+
+                                    }, Throwable::printStackTrace);
                         },
                         throwable -> {
                             errorHandler(throwable, fnsValues, token, it);

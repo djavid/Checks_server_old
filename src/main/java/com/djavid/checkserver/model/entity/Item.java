@@ -116,6 +116,8 @@ public class Item {
     }
 
     public String getCategory() {
+        if (category == null) category = "Без категории";
+
         return category;
     }
 

@@ -84,7 +84,6 @@ public class CheckService {
                                             }
 
                                             deferredResult.setResult(new BaseResponse(receipt));
-
                                         }, Throwable::printStackTrace);
                             },
                             throwable -> {
