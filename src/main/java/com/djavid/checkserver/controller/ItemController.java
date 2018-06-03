@@ -23,7 +23,7 @@ public class ItemController {
     private RegistrationTokenRepository tokenRepository;
 
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json")
     public Iterable<Item> getItems() {
 
         return itemRepository.findAll();
