@@ -30,7 +30,7 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public BaseResponse getItemsByCategory(@RequestHeader("Token") String token, @RequestParam("page") String category,
+    public BaseResponse getItemsByCategory(@RequestHeader("Token") String token, @RequestParam("category") String category,
                                           @RequestParam("page") int page) {
 
         try {
