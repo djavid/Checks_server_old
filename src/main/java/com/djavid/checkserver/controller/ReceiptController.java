@@ -18,6 +18,7 @@ import com.djavid.checkserver.service.CheckService;
 import com.djavid.checkserver.util.LogoUtil;
 import com.djavid.checkserver.util.StringUtil;
 import io.reactivex.disposables.Disposable;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +71,12 @@ public class ReceiptController {
             tokenRepository.save(registrationToken);
 
             List<Receipt> list = receiptRepository.findReceiptsByTokenId(registrationToken.getId());
+            list.sort((r1, r2) -> {
+                long date1 = DateTime.parse(r1.getDateTime()).getMillis();
+                long date2 = DateTime.parse(r2.getDateTime()).getMillis();
+
+                return Long.compare(date2, date1);
+            });
 
             PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
             pagedListHolder.setPageSize(10);
