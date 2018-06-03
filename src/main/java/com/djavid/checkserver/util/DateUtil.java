@@ -52,7 +52,7 @@ public class DateUtil {
             if (add) total += it.getTotalSum();
         }
 
-        return total;
+        return total / 100;
     }
 
 
