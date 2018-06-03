@@ -93,8 +93,8 @@ public class ReceiptController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public BaseResponse getReceiptsByShop(@RequestHeader("Token") String token, @RequestParam("shop") String shop,
+    @RequestMapping(value = "/{shop}", method = RequestMethod.GET, produces = "application/json")
+    public BaseResponse getReceiptsByShop(@RequestHeader("Token") String token, @PathVariable("shop") String shop,
                                           @RequestParam("page") int page) {
 
         try {
