@@ -14,6 +14,8 @@ import com.djavid.checkserver.model.repository.ItemRepository;
 import com.djavid.checkserver.model.repository.ReceiptRepository;
 import com.djavid.checkserver.model.repository.RegistrationTokenRepository;
 import com.djavid.checkserver.service.CheckService;
+import com.djavid.checkserver.util.DateUtil;
+import com.djavid.checkserver.util.SumInterval;
 import io.reactivex.disposables.Disposable;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,20 @@ public class StatsController {
     private Api api;
 
     private Disposable disposable;
+
+
+    public class DateInterval {
+
+        public String interval;
+        public String dateStart;
+        public String dateEnd;
+
+        public DateInterval(String dateStart, String dateEnd, String interval) {
+            this.dateStart = dateStart;
+            this.dateEnd = dateEnd;
+            this.interval = interval;
+        }
+    }
 
 
     @RequestMapping(value = "/intervals", method = RequestMethod.GET)
@@ -143,19 +159,19 @@ public class StatsController {
         return new BaseResponse("Wrong interval format!");
     }
 
-    public class DateInterval {
+    @RequestMapping(method = RequestMethod.GET, value = "total")
+    public BaseResponse getTotals(@RequestHeader("Token") String token, @RequestParam("type") String sum_type) {
 
-        public String interval;
-        public String dateStart;
-        public String dateEnd;
+        RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+        if (registrationToken == null)
+            return new BaseResponse("Token is incorrect!");
+        registrationToken.setLastVisited(System.currentTimeMillis());
+        tokenRepository.save(registrationToken);
 
-        public DateInterval(String dateStart, String dateEnd, String interval) {
-            this.dateStart = dateStart;
-            this.dateEnd = dateEnd;
-            this.interval = interval;
-        }
+        List<Receipt> receipts = receiptRepository.findReceiptsByTokenId(registrationToken.getId());
+
+        return new BaseResponse(DateUtil.getTotal(receipts, SumInterval.valueOf(sum_type)));
     }
-
 
     @RequestMapping(method = RequestMethod.GET)
     public BaseResponse getIntervalStats(@RequestHeader("Token") String token,
