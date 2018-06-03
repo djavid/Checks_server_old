@@ -12,6 +12,7 @@ public interface ReceiptRepository extends CrudRepository<Receipt, Long> {
     Receipt findReceiptByReceiptId(Long id);
     Receipt findReceiptByUser(String user);
     List<Receipt> findReceiptsByTokenId(Long tokenId);
+    List<Receipt> findReceiptsByUserAndTokenId(String user, Long tokenId);
 
     Receipt findReceiptByFiscalDriveNumberAndFiscalDocumentNumberAndFiscalSignAndTokenId
             (String fiscalDriveNumber, String fiscalDocumentNumber, String fiscalSign, long tokenId);

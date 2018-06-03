@@ -93,6 +93,40 @@ public class ReceiptController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public BaseResponse getReceiptsByShop(@RequestHeader("Token") String token, @RequestParam("page") String shop,
+                                          @RequestParam("page") int page) {
+
+        try {
+            RegistrationToken registrationToken = tokenRepository.findRegistrationTokenByToken(token);
+            if (registrationToken == null)
+                return new BaseResponse("Token is incorrect!");
+            registrationToken.setLastVisited(System.currentTimeMillis());
+            tokenRepository.save(registrationToken);
+
+            List<Receipt> list = receiptRepository.findReceiptsByUserAndTokenId(shop, registrationToken.getId());
+            list.sort((r1, r2) -> {
+                long date1 = DateTime.parse(r1.getDateTime()).getMillis();
+                long date2 = DateTime.parse(r2.getDateTime()).getMillis();
+
+                return Long.compare(date2, date1);
+            });
+
+            PagedListHolder<Receipt> pagedListHolder = new PagedListHolder<>(list);
+            pagedListHolder.setPageSize(10);
+            if (page < 0 || page >= pagedListHolder.getPageCount())
+                return new BaseResponse("Page is incorrect!");
+
+            pagedListHolder.setPage(page);
+            return new BaseResponse(new GetReceiptsResponse(pagedListHolder.getPageList(),
+                    !pagedListHolder.isLastPage()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new BaseResponse("Something gone wrong");
+        }
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public Receipt getReceiptById(@PathVariable("id") long id) {
         return receiptRepository.findReceiptByReceiptId(id);
